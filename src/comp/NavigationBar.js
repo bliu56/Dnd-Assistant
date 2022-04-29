@@ -1,4 +1,4 @@
-import { Nav, Navbar, NavDropdown, Container } from 'react-bootstrap';
+import { Nav, Navbar, NavDropdown, Container, Offcanvas } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import React, { useState } from 'react';
@@ -7,13 +7,17 @@ import { Link } from 'react-router-dom';
 import './NavigationBar.css';
 import {SidebarData} from './SidebarData.js';
 
+import DiceOffCanvas from './DiceOffCanvas.js';
+
 import * as BsIcons from "react-icons/bs";
 
 function NavigationBar(){
 
     const [sidebar, setsidebar] = useState(false);
+    const [dicecanvas, setdicecanvas] = useState(false);
 
     const showSidebar = () => setsidebar(!sidebar);
+    const toggleDiceCanvas = () => setdicecanvas((s) => !s);
 
     return(
         <>
@@ -21,6 +25,9 @@ function NavigationBar(){
                 <Navbar.Collapse id="basic-navbar-nav">
                 <Nav className="me-auto">
                     <Nav.Link href="#" onClick={showSidebar}><BsIcons.BsArrowBarRight/></Nav.Link>
+                </Nav>
+                <Nav className = "left-nav">
+                    <Nav.Link onClick={toggleDiceCanvas}><BsIcons.BsDice3Fill/></Nav.Link>
                 </Nav>
                 <Nav className="left-nav">
                         <BsIcons.BsFillGearFill/>
@@ -47,6 +54,11 @@ function NavigationBar(){
                     })}
                 </ul>
             </nav>
+
+            <Offcanvas show={dicecanvas} placement={"bottom"} scroll={true} backdrop={false}>
+                <DiceOffCanvas/>
+            </Offcanvas>
+
         </>
     );
 }
