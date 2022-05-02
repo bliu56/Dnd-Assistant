@@ -8,5 +8,17 @@ export const SidebarData = [
     path: '/',
     icon: <AiIcons.AiFillHome />,
     cName: 'nav-text'
+  },
+  {
+    title: 'Spell',
+    path: '/spells',
+    icon: <GiIcons.GiCrystalWand />,
+    cName: 'nav-text'
+  },
+  {
+    title: 'Test',
+    path: '/test',
+    icon: <GiIcons.GiCrystalWand />,
+    cName: 'nav-text'
   }
 ];

@@ -1,0 +1,24 @@
+.box{
+    width: 50%;
+    height: 45rem;
+    /* number 10 */
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+    margin:auto;
+    margin-top: 5rem;
+}
+
+.box-items{
+    font-size:xx-large;
+    display: flex;
+    padding: 3rem;
+    flex-direction: column;
+}
+
+.back-button{
+    font-size: medium;
+    margin-top: 5rem;
+}
+
+.remove-link{
+    text-decoration: none;
+}
