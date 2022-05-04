@@ -1,5 +1,5 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Nav, Navbar, Fade} from 'react-bootstrap';
+import { Nav, Navbar, Fade, Offcanvas} from 'react-bootstrap';
 
 import * as BsIcons from "react-icons/bs";
 
@@ -9,6 +9,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { auth } from '../firebase-config';
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 
+import DiceOffCanvas from './DiceOffCanvas.js';
 import {SidebarData} from './SidebarData.js';
 import './NavigationBar.css';
 import '../App.js'
@@ -25,11 +26,17 @@ function NavigationBar(){
     //Toggles wheather it is a Login or Logout button. False means that they are not logined yet.
     const [canLogout, setCanLogout] = useState(false);
 
+    //Toggles the dice offcanvas
+    const [dicecanvas, setdicecanvas] = useState(false);
+
     //Function that handles the sidebar
     const showSidebar = () => setsidebar(!sidebar);
 
     //Function that handles the settings
     const showSettings = () => setSettings(!settings);
+
+    //Function that handles the dice offcanvas
+    const toggleDiceCanvas = () => setdicecanvas((s) => !s);
 
     //Allows navigation to other pages
     const navigate = useNavigate();
@@ -63,6 +70,11 @@ function NavigationBar(){
                 {/* ---------------Left Side of Nav------------------ */}
                 <Nav className="me-auto">
                     <Nav.Link href="#" onClick={showSidebar}><BsIcons.BsArrowBarRight/></Nav.Link>
+                </Nav>
+
+                {/* ---------------Dice Button------------------ */}
+                <Nav className = "right-nav">
+                    <Nav.Link onClick={toggleDiceCanvas}><BsIcons.BsDice3Fill/></Nav.Link>
                 </Nav>
 
                 {/* ---------------Ride side of Nav------------------ */}
@@ -113,6 +125,11 @@ function NavigationBar(){
                     })}
                 </ul>
             </nav>
+
+            {/* ---------------Dice Offcanvas------------------ */}
+            <Offcanvas show={dicecanvas} placement={"bottom"} scroll={true} backdrop={false}>
+                <DiceOffCanvas/>
+            </Offcanvas>
         </>
     );
 }
