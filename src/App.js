@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import Home from './pages/Home';
+import CharacterCreator from './pages/CharacterCreator';
 import Spells from './pages/Spells';
 import Test from './pages/test'
 import Login from './comp/Login'
@@ -22,6 +23,7 @@ function App() {
         <NavigationBar/>
         <Routes>
           <Route path='/' element={<Home/>}/>
+          <Route path='character' element={<CharacterCreator/>} />
           <Route path='spells' element={<Spells/>} />
           <Route path='test' element={<Test/>} />
           <Route path='login' element={<Login/>}/>
