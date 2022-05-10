@@ -7,6 +7,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import Home from './pages/Home';
 // import Spells from './pages/Spells';
+import FileUpload from './pages/FileUpload.js';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import NavigationBar from './comp/NavigationBar'; 
@@ -18,6 +19,8 @@ function App() {
         <NavigationBar/>
         <Routes>
           <Route path='/' element={<Home/>}/>
+          <Route path='FileUpload' element={<FileUpload/>}/>
+
           {/* <Route path='spells' element={<Spells/>} /> */}
         </Routes>
       </Router>
