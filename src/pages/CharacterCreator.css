@@ -1,7 +1,20 @@
-/*
-#333A40 dark
-#4C5E5E dark green
-#ADD0E5 tur
-#CDE4FF light white
-#729EBF light blue
-*/
+.characterCreatorTitle {
+    text-align: center;
+    margin:20px;
+}
+
+.characterCreatorContainer{
+    margin-left:10px;
+    margin-bottom:10px;
+}
+
+.characterCreatorCard{
+    margin-top:5px;
+    margin-bottom:10px;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
+}
+
+.charButton{
+    margin-right:5px;
+    margin-bottom: 5px;
+}
