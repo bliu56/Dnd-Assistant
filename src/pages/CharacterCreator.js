@@ -1,10 +1,9 @@
 import './CharacterCreator.css';
-import { diceRoll } from '../diceRoll';
-
 import React, { useState } from 'react';
 import { Container, Row, Col, CardGroup, Card, Form, Button, ToggleButton, ToggleButtonGroup, DropdownButton, Tabs, Tab, ButtonToolbar } from 'react-bootstrap';
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 import Axios from 'axios';
+import { dropMinRoll } from '../dropMinRoll';
 
 function verticalRule(){
     return(<div className='vr' style={{padding:'0px', margin:'10px 5px', color:'gray'}}/>)
@@ -105,12 +104,25 @@ function CharacterCreator(){
     const [optRace,setOptRace] = useState(characterRaces[0]);
     const [optClass,setOptClass] = useState(characterClasses[0]);
     const [optBackground,setOptBackground] = useState(characterBackgrounds[0]);
-    const [optAbilitiesInfo,setOptAbilitiesInfo] = useState(characterAbilities[0].info);
-    const [optAbilities,setOptAbilities] = useState([0,0,0,0,0,0]);
+    const [optAbilitiesInfo,setCharAbilitiesInfo] = useState(characterAbilities[0].info);
+    const [charAbilities,setCharAbilities] = useState([0,0,0,0,0,0]);
     const [dieRollResult,setdieRollResult] = useState([0]);
-    const handleDieRollResult = () => {
-        setdieRollResult(1);
+    const [curStat, setCurStat]            = useState({0 : 'STR', 1 : 0});
+
+    const handledieRollResult = () => {
+        setdieRollResult(dropMinRoll(4,6));
         //dieRoll(1,1,0);
+    }
+
+    const handleSetCharAbilities = (index) => {
+        const newAbilities = []
+        for (let i = 0; i < charAbilities.length; i++) {
+            if(i == index)
+                newAbilities[i] = dieRollResult;
+            else
+                newAbilities[i] = charAbilities[i];
+        }
+        setCharAbilities(newAbilities);
     }
 
     const fetchRaceInfo = (index) => {
@@ -173,6 +185,7 @@ function CharacterCreator(){
     loadRaces();
     loadClasses();
     /* ----------------return JSX stuff---------------- */
+
     return(
         <>
             <h2 className='characterCreatorTitle'>Character Creator</h2>
@@ -270,45 +283,74 @@ function CharacterCreator(){
                 <Row className='characterCardRow'>
                     <Col xs={7} className='characterOptionsCol'>
                         <Card className='characterOptionsCard characterCreatorCard' border='light'>
+                            <>Ability Scores</>
                             <Tabs>
-                                <Tab eventKey='point-buy' title='Ability Scores: Point Buy'>
+                                <Tab eventKey='point-buy' title='Point Buy'>
                                     <Card.Body>
                                         <CardGroup>
                                             {characterAbilities.map((item, index) => {
                                                 return(
-                                                    <Card onClick={() => setOptAbilitiesInfo(characterAbilities[index].info)}>
+                                                    <>
+                                                    <Card onClick={() => setCharAbilitiesInfo(characterAbilities[index].info)}>
                                                         <Card.Header>{item.nameAbbrv}</Card.Header>
                                                         <Card.Body>
                                                             <Form>
-                                                                <Form.Control value={optAbilities[index]}/>
+                                                                <Form.Control 
+                                                                    type="number"
+                                                                    pattern="[0-20]*"
+                                                                    value={charAbilities[index]}
+                                                                ></Form.Control>
                                                             </Form>
                                                         </Card.Body>
                                                     </Card>
+                                                    </>
                                                 );
                                             })}
                                         </CardGroup>
                                         <p/>
                                         <div>
-                                            Points: 0
+                                            Points: 27
                                         </div>
                                     </Card.Body>
                                 </Tab>
-                                <Tab eventKey='dice-roll' title='Ability Scores: Roll'>
+                                <Tab eventKey='dice-roll' title='Roll For Stats'>
                                     <Card.Body>
                                         <CardGroup>
                                             {characterAbilities.map((item, index) => {
                                                 return(
-                                                    <Card onClick={() => setOptAbilitiesInfo(characterAbilities[index].info)}>
+                                                    <Card onClick={() => setCharAbilitiesInfo(characterAbilities[index].info)}>
                                                         <Card.Header>{item.nameAbbrv}</Card.Header>
                                                         <Card.Body>
-                                                            <Button>{optAbilities[index]}</Button>
+                                                        <Button onClick={() => setCurStat({0 : item.nameAbbrv, 1 : index})}>{charAbilities[index]}</Button>
                                                         </Card.Body>
                                                     </Card>
                                                 );
                                             })}
                                         </CardGroup>
-                                        <p/>
-                                        <Button onClick={handleDieRollResult}>roll: {dieRollResult}</Button>
+                                        <p></p>
+                                        <Button onClick={handledieRollResult}> roll: {dieRollResult}</Button>
+                                        <>   </>
+                                        <Button onClick={() => handleSetCharAbilities(curStat[1])}> Commit to: {curStat[0]}</Button>
+                                    </Card.Body>
+                                </Tab>
+                                <Tab eventKey='manual-entry' title='Manual Entry'>
+                                    <Card.Body>
+                                        <CardGroup>
+                                            {characterAbilities.map((item, index) => {
+                                                return(
+                                                    <Card onClick={() => setCharAbilitiesInfo(characterAbilities[index].info)}>
+                                                        <Card.Header>{item.nameAbbrv}</Card.Header>
+                                                        <Card.Body>
+                                                            <Form.Control
+                                                                type="number"
+                                                                pattern="[0-20]*"
+                                                                defaultValue={0}
+                                                            />
+                                                        </Card.Body>
+                                                    </Card>
+                                                );
+                                            })}
+                                        </CardGroup>
                                     </Card.Body>
                                 </Tab>
                             </Tabs>
