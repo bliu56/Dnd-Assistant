@@ -70,6 +70,7 @@ function optionsDropdown(topItem, list, setItemFxn){
 function CharacterCreator(){
     const [loadedRaces, setloadedRaces] = useState(false);
     const [loadedClasses, setloadedClasses] = useState(false);
+    const [loadedAbilities, setloadedAbilities] = useState(false);
 
     const [characterRaces, setCharacterRaces] = useState([
         {
@@ -96,22 +97,23 @@ function CharacterCreator(){
     ]);
     const [characterAbilities, setCharacterAbilities] = useState([
         {
-            name: 'Strength',
-            nameAbbrv: 'STR',
-            info: 'about str'
+            name: '',
+            index: '',
+            full_name: '',
+            desc: []
         }
     ]);
     const [optRace,setOptRace] = useState(characterRaces[0]);
     const [optClass,setOptClass] = useState(characterClasses[0]);
     const [optBackground,setOptBackground] = useState(characterBackgrounds[0]);
-    const [optAbilitiesInfo,setCharAbilitiesInfo] = useState(characterAbilities[0].info);
+    const [optAbilities,setOptAbilities] = useState(characterAbilities[0]);
     const [charAbilities,setCharAbilities] = useState([0,0,0,0,0,0]);
+    const [abilityPoints,setAbilityPoints] = useState(27);
     const [dieRollResult,setdieRollResult] = useState([0]);
-    const [curStat, setCurStat]            = useState({0 : 'STR', 1 : 0});
+    const [curStat, setCurStat]            = useState({0 : 'CHA', 1 : 0});
 
     const handledieRollResult = () => {
         setdieRollResult(dropMinRoll(4,6));
-        //dieRoll(1,1,0);
     }
 
     const handleSetCharAbilities = (index) => {
@@ -123,10 +125,19 @@ function CharacterCreator(){
                 newAbilities[i] = charAbilities[i];
         }
         setCharAbilities(newAbilities);
+        setAbilityPoints(abilityPoints + charAbilities[index] - dieRollResult)
+    }
+    const handleSetAbilityScore = (event, index, isBuy) => {
+        let newScore = Number(event.target.value);
+        let remainingAbilityPoints = abilityPoints + charAbilities[index] - newScore
+        if(remainingAbilityPoints >= 0 || !isBuy) {
+            charAbilities[index] = newScore;
+            setCharAbilities(charAbilities);
+            setAbilityPoints(remainingAbilityPoints);
+        }
     }
 
     const fetchRaceInfo = (index) => {
-        setCharacterRaces([]);
         Axios.get("https://www.dnd5eapi.co/api/races/" + index).then(
             (r) => {
                 let item = JSON.parse(JSON.stringify(r.data))
@@ -143,7 +154,7 @@ function CharacterCreator(){
     }
     const loadRaces = () => {
         if(!loadedRaces) {
-            setloadedRaces(true);
+            setCharacterRaces([]);
             Axios.get("https://www.dnd5eapi.co/api/races").then(
                 (r) => {
                     let len = JSON.parse(JSON.stringify(r.data.count));
@@ -153,10 +164,10 @@ function CharacterCreator(){
                     }
                 }
             )
+            setloadedRaces(true);
         }
     }
     const fetchClassInfo = (index) => {
-        setCharacterClasses([]);
         Axios.get("https://www.dnd5eapi.co/api/classes/" + index).then(
             (r) => {
                 let item = JSON.parse(JSON.stringify(r.data))
@@ -169,7 +180,7 @@ function CharacterCreator(){
     }
     const loadClasses = () => {
         if(!loadedClasses) {
-            setloadedClasses(true);
+            setCharacterClasses([]);
             Axios.get("https://www.dnd5eapi.co/api/classes").then(
                 (r) => {
                     let len = JSON.parse(JSON.stringify(r.data.count));
@@ -179,11 +190,41 @@ function CharacterCreator(){
                     }
                 }
             )
+            setloadedClasses(true);
+        }
+    }
+    const fetchAbilitiesInfo = (index) => {
+        Axios.get("https://www.dnd5eapi.co/api/ability-scores/" + index).then(
+            (r) => {
+                let item = JSON.parse(JSON.stringify(r.data))
+                setCharacterAbilities(prevItems => [...prevItems, {
+                    name: item.name,
+                    index: item.index,
+                    full_name: item.full_name,
+                    desc: item.desc
+                }]);
+            }
+        )
+    }
+    const loadAbilities = () => {
+        if(!loadedAbilities) {
+            setCharacterAbilities([]);
+            Axios.get("https://www.dnd5eapi.co/api/ability-scores").then(
+                (r) => {
+                    let len = JSON.parse(JSON.stringify(r.data.count));
+                    for(let i = 0; i < len; i++) {
+                        let item = JSON.parse(JSON.stringify(r.data.results[i]));
+                        fetchAbilitiesInfo(item.index);
+                    }
+                }
+            )
+            setloadedAbilities(true);
         }
     }
 
     loadRaces();
     loadClasses();
+    loadAbilities();
     /* ----------------return JSX stuff---------------- */
 
     return(
@@ -283,7 +324,7 @@ function CharacterCreator(){
                 <Row className='characterCardRow'>
                     <Col xs={7} className='characterOptionsCol'>
                         <Card className='characterOptionsCard characterCreatorCard' border='light'>
-                            <>Ability Scores</>
+                            <Card.Header>Ability Scores</Card.Header>
                             <Tabs>
                                 <Tab eventKey='point-buy' title='Point Buy'>
                                     <Card.Body>
@@ -291,15 +332,16 @@ function CharacterCreator(){
                                             {characterAbilities.map((item, index) => {
                                                 return(
                                                     <>
-                                                    <Card onClick={() => setCharAbilitiesInfo(characterAbilities[index].info)}>
-                                                        <Card.Header>{item.nameAbbrv}</Card.Header>
+                                                    <Card onClick={() => setOptAbilities(characterAbilities[index])}>
+                                                        <Card.Header>{item.name}</Card.Header>
                                                         <Card.Body>
                                                             <Form>
                                                                 <Form.Control 
                                                                     type="number"
                                                                     pattern="[0-20]*"
                                                                     value={charAbilities[index]}
-                                                                ></Form.Control>
+                                                                    onChange={(event) => handleSetAbilityScore(event,index,true)}
+                                                                />
                                                             </Form>
                                                         </Card.Body>
                                                     </Card>
@@ -309,7 +351,7 @@ function CharacterCreator(){
                                         </CardGroup>
                                         <p/>
                                         <div>
-                                            Points: 27
+                                            Points: {abilityPoints}
                                         </div>
                                     </Card.Body>
                                 </Tab>
@@ -318,10 +360,10 @@ function CharacterCreator(){
                                         <CardGroup>
                                             {characterAbilities.map((item, index) => {
                                                 return(
-                                                    <Card onClick={() => setCharAbilitiesInfo(characterAbilities[index].info)}>
-                                                        <Card.Header>{item.nameAbbrv}</Card.Header>
+                                                    <Card onClick={() => setOptAbilities(characterAbilities[index])}>
+                                                        <Card.Header>{item.name}</Card.Header>
                                                         <Card.Body>
-                                                        <Button onClick={() => setCurStat({0 : item.nameAbbrv, 1 : index})}>{charAbilities[index]}</Button>
+                                                        <Button onClick={() => setCurStat({0 : item.name, 1 : index})}>{charAbilities[index]}</Button>
                                                         </Card.Body>
                                                     </Card>
                                                 );
@@ -338,13 +380,14 @@ function CharacterCreator(){
                                         <CardGroup>
                                             {characterAbilities.map((item, index) => {
                                                 return(
-                                                    <Card onClick={() => setCharAbilitiesInfo(characterAbilities[index].info)}>
-                                                        <Card.Header>{item.nameAbbrv}</Card.Header>
+                                                    <Card onClick={() => setOptAbilities(characterAbilities[index])}>
+                                                        <Card.Header>{item.name}</Card.Header>
                                                         <Card.Body>
                                                             <Form.Control
                                                                 type="number"
                                                                 pattern="[0-20]*"
-                                                                defaultValue={0}
+                                                                value={charAbilities[index]}
+                                                                onChange={(event) => handleSetAbilityScore(event,index,false)}
                                                             />
                                                         </Card.Body>
                                                     </Card>
@@ -361,8 +404,12 @@ function CharacterCreator(){
                         <Card className='characterInfoCard characterCreatorCard' border='light'>
                             <Card.Body>
                                 <Card.Text>
-                                    information:
-                                    <p>{optAbilitiesInfo}</p>
+                                    <h5>{optAbilities.name}</h5><hr/>
+                                    {optAbilities.desc.map((item) => {
+                                        return(
+                                            <p>{item}</p>
+                                        );
+                                    })}
                                 </Card.Text>
                             </Card.Body>
                         </Card>
