@@ -9,11 +9,28 @@ export const SidebarData = [
     icon: <AiIcons.AiFillHome />,
     cName: 'nav-text'
   },
-
   {
     title: 'FileUpload',
     path: 'FileUpload',
     icon: <AiIcons.AiFillHome />,
+    cName: 'nav-text'
+  },
+  {
+    title: 'Character Creation',
+    path: 'character',
+    icon: <AiIcons.AiFillHome />,
+    cName: 'nav-text'
+  },
+  {
+    title: 'Spell',
+    path: '/spells',
+    icon: <GiIcons.GiCrystalWand />,
+    cName: 'nav-text'
+  },
+  {
+    title: 'Test',
+    path: '/test',
+    icon: <GiIcons.GiCrystalWand />,
     cName: 'nav-text'
   }
 ];
