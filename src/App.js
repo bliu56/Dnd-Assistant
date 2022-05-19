@@ -6,6 +6,8 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import Home from './pages/Home';
+
+import FileUpload from './pages/FileUpload.js';
 import CharacterCreator from './pages/CharacterCreator';
 import Spells from './pages/Spells';
 import Test from './pages/test'
@@ -23,6 +25,7 @@ function App() {
         <NavigationBar/>
         <Routes>
           <Route path='/' element={<Home/>}/>
+          <Route path='FileUpload' element={<FileUpload/>}/>
           <Route path='character' element={<CharacterCreator/>} />
           <Route path='spells' element={<Spells/>} />
           <Route path='test' element={<Test/>} />

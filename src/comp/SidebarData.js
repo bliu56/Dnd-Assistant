@@ -10,6 +10,12 @@ export const SidebarData = [
     cName: 'nav-text'
   },
   {
+    title: 'FileUpload',
+    path: 'FileUpload',
+    icon: <AiIcons.AiFillHome />,
+    cName: 'nav-text'
+  },
+  {
     title: 'Character Creation',
     path: 'character',
     icon: <AiIcons.AiFillHome />,
