@@ -1,13 +1,16 @@
-import './CharacterCreator.css';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, CardGroup, Card, Form, Button, ToggleButton, ToggleButtonGroup, DropdownButton, Tabs, Tab, ButtonToolbar } from 'react-bootstrap';
+import { dropMinRoll } from '../dropMinRoll';
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 import Axios from 'axios';
-import { dropMinRoll } from '../dropMinRoll';
+import ClassFeature from '../comp/class/ClassFeature';
+
+import './CharacterCreator.css';
 
 function verticalRule(){
     return(<div className='vr' style={{padding:'0px', margin:'10px 5px', color:'gray'}}/>)
 }
+
 function characterCreatorCardPlaceHolder(name){
     return(
         <Row className='characterCardRow'>
@@ -29,12 +32,13 @@ function characterCreatorCardPlaceHolder(name){
         </Row>
     );
 }
+
 function optionsToolBar(list, setItemFxn){
     return(
         <ButtonToolbar>
-            {list.map((item) => {
+            {list.map((item, index) => {
                 return(
-                    <Button className='charButton' onClick={() => setItemFxn(item)}>
+                    <Button className='charButton' onClick={() => setItemFxn(item)} key={index}>
                         {item.name}
                     </Button>
                 );
@@ -42,12 +46,13 @@ function optionsToolBar(list, setItemFxn){
         </ButtonToolbar>
     );
 }
+
 function optionsToggleButtonGroup(name, list, setItemFxn){
     return(
         <ToggleButtonGroup name={name} type='radio' defaultValue={0}>
             {list.map((item, index) => {
                 return(
-                    <ToggleButton className='charButton' id={item.name} value={index} onChange={() => setItemFxn(item)}>
+                    <ToggleButton className='charButton' id={item.name} value={index} key={index} onChange={() => setItemFxn(item)}>
                         {item.name}
                     </ToggleButton>
                 );
@@ -55,12 +60,13 @@ function optionsToggleButtonGroup(name, list, setItemFxn){
         </ToggleButtonGroup>
     );
 }
+
 function optionsDropdown(topItem, list, setItemFxn){
     return(
         <DropdownButton title={topItem.name}>
-            {list.map((item) => {
+            {list.map((item, index) => {
                 return(
-                    <DropdownItem onClick={() => setItemFxn(item)}>{item.name}</DropdownItem>
+                    <DropdownItem onClick={() => setItemFxn(item)} key={index}>{item.name}</DropdownItem>
                 );
             })}
         </DropdownButton>
@@ -82,12 +88,17 @@ function CharacterCreator(){
             language_desc: ''
         }
     ]);
+
     const [characterClasses, setCharacterClasses] = useState([
         {
             name: '',
-            info: ''
+            hit_die: '',
+            proficiencies: "",
+            saving_throws: "",
+            skills: ""
         }
     ]);
+
     const [characterBackgrounds, setCharacterBackgrounds] = useState([
         {
             name: 'bg 1',
@@ -95,6 +106,7 @@ function CharacterCreator(){
             img: ''
         }
     ]);
+
     const [characterAbilities, setCharacterAbilities] = useState([
         {
             name: '',
@@ -103,6 +115,7 @@ function CharacterCreator(){
             desc: []
         }
     ]);
+
     const [optRace,setOptRace] = useState(characterRaces[0]);
     const [optClass,setOptClass] = useState(characterClasses[0]);
     const [optBackground,setOptBackground] = useState(characterBackgrounds[0]);
@@ -119,7 +132,7 @@ function CharacterCreator(){
     const handleSetCharAbilities = (index) => {
         const newAbilities = []
         for (let i = 0; i < charAbilities.length; i++) {
-            if(i == index)
+            if(i === index)
                 newAbilities[i] = dieRollResult;
             else
                 newAbilities[i] = charAbilities[i];
@@ -127,6 +140,8 @@ function CharacterCreator(){
         setCharAbilities(newAbilities);
         setAbilityPoints(abilityPoints + charAbilities[index] - dieRollResult)
     }
+
+    /* -------------------------------------------------------------------------------------Ab Score---------------- */
     const handleSetAbilityScore = (event, index, isBuy) => {
         let newScore = Number(event.target.value);
         let remainingAbilityPoints = abilityPoints + charAbilities[index] - newScore
@@ -137,6 +152,7 @@ function CharacterCreator(){
         }
     }
 
+    /* -------------------------------------------------------------------------------------Race---------------- */
     const fetchRaceInfo = (index) => {
         Axios.get("https://www.dnd5eapi.co/api/races/" + index).then(
             (r) => {
@@ -152,6 +168,7 @@ function CharacterCreator(){
             }
         )
     }
+
     const loadRaces = () => {
         if(!loadedRaces) {
             setCharacterRaces([]);
@@ -167,17 +184,67 @@ function CharacterCreator(){
             setloadedRaces(true);
         }
     }
+    /* -------------------------------------------------------------------------------------Classes---------------- */
     const fetchClassInfo = (index) => {
         Axios.get("https://www.dnd5eapi.co/api/classes/" + index).then(
             (r) => {
                 let item = JSON.parse(JSON.stringify(r.data))
+
+                //proficiencies
+                let profItem = item.proficiencies;
+                let prof = "";
+                for(var q = 0; q < profItem.length; q++){
+                    if(q === 0){
+                        prof = profItem[q].name;
+                    }
+                    else
+                    {
+                        prof = prof + ", " + profItem[q].name;
+                    }
+                }
+
+                //saving throw
+                let stItem = item.saving_throws
+                let st = ""
+                for(var w = 0; w < stItem.length; w++){
+                    if(w === 0){
+                        st = stItem[w].name;
+                    }
+                    else
+                    {
+                        st = st + ", " + stItem[w].name;
+                    }
+                }
+
+                //skills
+                let choiceNum = item.proficiency_choices[0].choose;
+                let skillsArray = item.proficiency_choices[0].from;
+                let choices = "";
+                let skill = "";
+                for(var e = 0; e < skillsArray.length; e++){
+                    let temp = skillsArray[e].name;
+                    let newTemp = temp.replace('Skill: ', '');
+                    if(e === 0){
+                        choices = newTemp;
+                    }
+                    else
+                    {
+                        choices = choices + ", " + newTemp;
+                    }
+                }
+                skill = choiceNum + ": " + choices;
+
                 setCharacterClasses(prevItems => [...prevItems, {
                     name: item.name,
-                    info: item.url
+                    hit_die: item.hit_die,
+                    proficiencies: prof,
+                    saving_throws: st,
+                    skills: skill
                 }]);
             }
         )
     }
+
     const loadClasses = () => {
         if(!loadedClasses) {
             setCharacterClasses([]);
@@ -193,6 +260,8 @@ function CharacterCreator(){
             setloadedClasses(true);
         }
     }
+
+    /* -------------------------------------------------------------------------------------Abilities---------------- */
     const fetchAbilitiesInfo = (index) => {
         Axios.get("https://www.dnd5eapi.co/api/ability-scores/" + index).then(
             (r) => {
@@ -206,6 +275,7 @@ function CharacterCreator(){
             }
         )
     }
+
     const loadAbilities = () => {
         if(!loadedAbilities) {
             setCharacterAbilities([]);
@@ -222,17 +292,19 @@ function CharacterCreator(){
         }
     }
 
-    loadRaces();
-    loadClasses();
-    loadAbilities();
-    /* ----------------return JSX stuff---------------- */
+    useEffect(() => {
+        loadRaces(); // eslint-disable-next-line react-hooks/exhaustive-deps
+        loadClasses(); // eslint-disable-next-line react-hooks/exhaustive-deps
+        loadAbilities(); // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
 
     return(
         <>
             <h2 className='characterCreatorTitle'>Character Creator</h2>
 
             <Container fluid className='characterCreatorContainer'>
-                {/* ----------------Race---------------- */}
+                {/* -------------------------------------------------------------------------------------Race---------------- */}
                 <Row className='characterCardRow'>
                     <Col xs={7} className='characterOptionsCol'>
                         <Card className='characterOptionsCard characterCreatorCard' border='light'>
@@ -243,34 +315,34 @@ function CharacterCreator(){
                             </Card.Body>
                         </Card>
                     </Col>
+
                     {verticalRule()}
+
                     <Col className='characterInfoCol'>
                         <Card className='characterInfoCard characterCreatorCard' border='light'>
                             {/* <Card.Img src={optRace.img} height='150px'/> */}
                             <Card.Body>
-                                <Card.Text>
-                                    <h5>{optRace.name}</h5><hr/>
-                                    <p><strong>size: </strong>{optRace.size}</p><hr/>
-                                    <p><strong>speed: </strong>{optRace.speed}</p><hr/>
-                                    <p>
-                                        <strong>ability bonuses: </strong>
-                                        <ul class='list-inline'>
-                                            {optRace.ability_bonuses.map((item) => {
+                                    <h5>Race: {optRace.name}</h5><hr/>
+                                    <p><strong>Size: </strong>{optRace.size}</p><hr/>
+                                    <p><strong>Speed: </strong>{optRace.speed}</p><hr/>
+                                    <div>
+                                        <strong>Ability bonuses: </strong>
+                                        <ul className='list-inline'>
+                                            {optRace.ability_bonuses.map((item, index) => {
                                                 return(
-                                                    <li className='list-inline-item'>{item.ability_score.name}: {item.bonus}</li>
+                                                    <li className='list-inline-item' key={index}>{item.ability_score.name}: {item.bonus}</li>
                                                 );
                                             })}
                                         </ul>
-                                    </p><hr/>
-                                    <p><strong>alignment: </strong>{optRace.alignment}</p><hr/>
-                                    <p><strong>language: </strong>{optRace.language_desc}</p>
-                                </Card.Text>
+                                    </div><hr/>
+                                    <p><strong>Alignment: </strong>{optRace.alignment}</p><hr/>
+                                    <p><strong>Language: </strong>{optRace.language_desc}</p>
                             </Card.Body>
                         </Card>
                     </Col>
                 </Row>
 
-                {/* ----------------Class---------------- */}
+                {/* -------------------------------------------------------------------------------------Class---------------- */}
                 <Row className='characterCardRow'>
                     <Col xs={7} className='characterOptionsCol'>
                         <Card className='characterOptionsCard characterCreatorCard' border='light'>
@@ -281,16 +353,20 @@ function CharacterCreator(){
                             </Card.Body>
                         </Card>
                     </Col>
+
                     {verticalRule()}
+
                     <Col className='characterInfoCol'>
                         <Card className='characterInfoCard characterCreatorCard' border='light'>
                             {/* <Card.Img src={optRace.img} height='150px'/> */}
                             <Card.Body>
-                                <Card.Text>
                                     <div>
-                                        <h5>{optClass.name}</h5>
+                                        <h5>Class: {optClass.name}</h5> <hr/>
+                                        <p><strong>Hit Die:</strong> {optClass.hit_die}</p> <hr/>
+                                        <p><strong>Proficiencies:</strong> {optClass.proficiencies}</p> <hr/>
+                                        <p><strong>Saving Throws:</strong> {optClass.saving_throws}</p> <hr/>
+                                        <p><strong>Choose</strong> {optClass.skills}</p>
                                     </div>
-                                </Card.Text>
                             </Card.Body>
                         </Card>
                     </Col>
@@ -306,15 +382,15 @@ function CharacterCreator(){
                             </Card.Body>
                         </Card>
                     </Col>
+
                     {verticalRule()}
+
                     <Col className='characterInfoCol'>
                         <Card className='characterInfoCard characterCreatorCard' border='light'>
                             {/* <Card.Img src={optBackground.img} height='150px'/> */}
                             <Card.Body>
-                                <Card.Text>
                                     {optBackground.name} information:
                                     <p>{optBackground.info}</p>
-                                </Card.Text>
                             </Card.Body>
                         </Card>
                     </Col>
@@ -331,8 +407,7 @@ function CharacterCreator(){
                                         <CardGroup>
                                             {characterAbilities.map((item, index) => {
                                                 return(
-                                                    <>
-                                                    <Card onClick={() => setOptAbilities(characterAbilities[index])}>
+                                                    <Card onClick={() => setOptAbilities(characterAbilities[index])} key={index}>
                                                         <Card.Header>{item.name}</Card.Header>
                                                         <Card.Body>
                                                             <Form>
@@ -345,7 +420,6 @@ function CharacterCreator(){
                                                             </Form>
                                                         </Card.Body>
                                                     </Card>
-                                                    </>
                                                 );
                                             })}
                                         </CardGroup>
@@ -355,12 +429,13 @@ function CharacterCreator(){
                                         </div>
                                     </Card.Body>
                                 </Tab>
+
                                 <Tab eventKey='dice-roll' title='Roll For Stats'>
                                     <Card.Body>
                                         <CardGroup>
                                             {characterAbilities.map((item, index) => {
                                                 return(
-                                                    <Card onClick={() => setOptAbilities(characterAbilities[index])}>
+                                                    <Card onClick={() => setOptAbilities(characterAbilities[index])} key={index}>
                                                         <Card.Header>{item.name}</Card.Header>
                                                         <Card.Body>
                                                         <Button onClick={() => setCurStat({0 : item.name, 1 : index})}>{charAbilities[index]}</Button>
@@ -375,12 +450,13 @@ function CharacterCreator(){
                                         <Button onClick={() => handleSetCharAbilities(curStat[1])}> Commit to: {curStat[0]}</Button>
                                     </Card.Body>
                                 </Tab>
+
                                 <Tab eventKey='manual-entry' title='Manual Entry'>
                                     <Card.Body>
                                         <CardGroup>
                                             {characterAbilities.map((item, index) => {
                                                 return(
-                                                    <Card onClick={() => setOptAbilities(characterAbilities[index])}>
+                                                    <Card onClick={() => setOptAbilities(characterAbilities[index])} key={index}>
                                                         <Card.Header>{item.name}</Card.Header>
                                                         <Card.Body>
                                                             <Form.Control
@@ -399,25 +475,47 @@ function CharacterCreator(){
                             </Tabs>
                         </Card>
                     </Col>
+
                     {verticalRule()}
+
                     <Col className='characterInfoCol'>
                         <Card className='characterInfoCard characterCreatorCard' border='light'>
                             <Card.Body>
-                                <Card.Text>
                                     <h5>{optAbilities.name}</h5><hr/>
-                                    {optAbilities.desc.map((item) => {
+                                    {optAbilities.desc.map((item, index) => {
                                         return(
-                                            <p>{item}</p>
+                                            <p key={index}>{item}</p>
                                         );
                                     })}
-                                </Card.Text>
                             </Card.Body>
                         </Card>
                     </Col>
                 </Row>
 
                 {/* ----------------Class Features---------------- */}
-                {characterCreatorCardPlaceHolder("Class Features")}
+                <Row className='characterCardRow'>
+                    <Col xs={7} className='characterOptionsCol'>
+                        <Card className='characterOptionsCard characterCreatorCard' border='light'>
+                            <Card.Header>Class Features</Card.Header>
+                                <Card.Body>
+                                    <div>
+                                        <strong>Selected Class:</strong> {optClass.name}
+                                        {ClassFeature(optClass.name)}
+                                    </div>
+                                </Card.Body>
+                        </Card>
+                    </Col>
+
+                    {verticalRule()}
+
+                    <Col className='characterInfoCol'>
+                        <Card className='characterInfoCard characterCreatorCard' border='light'>
+                            <Card.Body>
+                                <Card.Text>information</Card.Text>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                </Row>
 
                 {/* ----------------Proficiencies---------------- */}
                 {characterCreatorCardPlaceHolder("Proficiencies")}

@@ -1,6 +1,7 @@
 // import Axios from 'axios';
 // import ReactDOM from 'react-dom';
 import './App.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
@@ -11,12 +12,11 @@ import FileUpload from './pages/FileUpload.js';
 import CharacterCreator from './pages/CharacterCreator';
 import Spells from './pages/Spells';
 import Test from './pages/test'
-import Login from './comp/Login'
-import SignUp from './comp/SignUp';
-import PasswordRestore from './comp/PasswordRestore';
+import Login from './comp/log/Login'
+import SignUp from './comp/log/SignUp';
+import PasswordRestore from './comp/log/PasswordRestore';
 
-import 'bootstrap/dist/css/bootstrap.min.css';
-import NavigationBar from './comp/NavigationBar'; 
+import NavigationBar from './comp/nav/NavigationBar'; 
 
 function App() {
   return(
