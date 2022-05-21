@@ -73,6 +73,12 @@ function optionsDropdown(topItem, list, setItemFxn){
     );
 }
 
+function enterText(setItemFxn){
+    return(
+        <Form.Control onChange={(e) => setItemFxn(e.target.value)}></Form.Control>
+    );
+}
+
 function CharacterCreator(){
     const [loadedRaces, setloadedRaces] = useState(false);
     const [loadedClasses, setloadedClasses] = useState(false);
@@ -116,6 +122,7 @@ function CharacterCreator(){
         }
     ]);
 
+    const [optName,setOptName] = useState('unnamed');
     const [optRace,setOptRace] = useState(characterRaces[0]);
     const [optClass,setOptClass] = useState(characterClasses[0]);
     const [optBackground,setOptBackground] = useState(characterBackgrounds[0]);
@@ -304,6 +311,29 @@ function CharacterCreator(){
             <h2 className='characterCreatorTitle'>Character Creator</h2>
 
             <Container fluid className='characterCreatorContainer'>
+                {/* -------------------------------------------------------------------------------------Name---------------- */}
+                <Row className='characterCardRow'>
+                    <Col xs={7} className='characterOptionsCol'>
+                        <Card className='characterOptionsCard characterCreatorCard' border='light'>
+                            <Card.Header>Name</Card.Header>
+                            <Card.Body>
+                                {enterText(setOptName)}
+                            </Card.Body>
+                        </Card>
+                    </Col>
+
+                    {verticalRule()}
+
+                    <Col className='characterInfoCol'>
+                        <Card className='characterInfoCard characterCreatorCard' border='light'>
+                            {/* <Card.Img src={optRace.img} height='150px'/> */}
+                            <Card.Body>
+                                    <h5>Name: <strong>{optName}</strong></h5>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                </Row>
+
                 {/* -------------------------------------------------------------------------------------Race---------------- */}
                 <Row className='characterCardRow'>
                     <Col xs={7} className='characterOptionsCol'>
