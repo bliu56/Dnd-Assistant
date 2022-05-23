@@ -2,6 +2,30 @@ import './CharacterDisplay.css';
 import React, { useState } from 'react';
 import { Container, Row, Col, CardGroup, Card, Form, Button, ToggleButton, ToggleButtonGroup, DropdownButton, Tabs, Tab, ButtonToolbar } from 'react-bootstrap';
 
+function characterDisplayLeftColumn(){
+    return(
+        <>
+            <Card>
+                <Card.Header>placeholder</Card.Header>
+                <Card.Body></Card.Body>
+            </Card>
+            <Card>
+                <Card.Header>placeholder</Card.Header>
+                <Card.Body></Card.Body>
+            </Card>
+        </>
+    );
+}
+function characterDisplayRightColumn(){
+    return(
+        <>
+            <Card>
+                <Card.Header>placeholder</Card.Header>
+                <Card.Body></Card.Body>
+            </Card>
+        </>
+    );
+}
 
 function CharacterDisplay(){
     return(
@@ -31,6 +55,18 @@ function CharacterDisplay(){
                                 <p><strong>Adventuring Group</strong></p>
                             </div>
                         </div>     
+                    </Container>
+                    <Container>
+                        <Row className='characterDisplayBody'>
+                            <Col xs={4} className='characterDisplayCol'>
+                                <h5>Left Column stuff</h5>
+                                {characterDisplayLeftColumn()}
+                            </Col>
+                            <Col className='characterDisplayCol'>
+                                <h5>Right Column stuff</h5>
+                                {characterDisplayRightColumn()}
+                            </Col>
+                        </Row>
                     </Container>
             </Container>
         </>
