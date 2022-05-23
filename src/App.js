@@ -10,6 +10,7 @@ import Home from './pages/Home';
 
 import FileUpload from './pages/FileUpload.js';
 import CharacterCreator from './pages/CharacterCreator';
+import CharacterDisplay from './pages/CharacterDisplay';
 import Spells from './pages/Spells';
 import Test from './pages/test'
 import Login from './comp/log/Login'
@@ -27,6 +28,7 @@ function App() {
           <Route path='/' element={<Home/>}/>
           <Route path='FileUpload' element={<FileUpload/>}/>
           <Route path='character' element={<CharacterCreator/>} />
+          <Route path='display' element={<CharacterDisplay/>} />
           <Route path='spells' element={<Spells/>} />
           <Route path='test' element={<Test/>} />
           <Route path='login' element={<Login/>}/>
