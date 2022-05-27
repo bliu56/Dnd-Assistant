@@ -571,12 +571,13 @@ function CharacterCreator(){
         let tempArray = [];
         try{
             let profArray = classFile.Class_Features.Proficiencies;
+            console.log(profArray)
             tempArray.push(profArray.content[0]);
             tempArray.push(profArray.content[1]);
             profChoices();
         }
         catch(err){
-
+            console.log(err)
         }
         setClassProf(tempArray);
     }, [classFile])
@@ -1169,7 +1170,7 @@ function CharacterCreator(){
                                 </div>
                                 <hr/>
                                 <div>
-                                    Pick {choiceNum} <br/>
+                                    Pick {choiceNum} : <br/>
                                     {classChoices.map((item, idx) => (
                                         <ToggleButton
                                             key={idx}
