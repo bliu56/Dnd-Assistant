@@ -71,6 +71,7 @@ function CharacterCreator(){
     const [loadedRaces, setloadedRaces] = useState(false);
     const [loadedClasses, setloadedClasses] = useState(false);
     const [loadedAbilities, setloadedAbilities] = useState(false);
+    const [loadedBackgrounds, setloadedBackgrounds] = useState(false);
 
     const [characterRaces, setCharacterRaces] = useState([
         {
@@ -90,9 +91,14 @@ function CharacterCreator(){
     ]);
     const [characterBackgrounds, setCharacterBackgrounds] = useState([
         {
-            name: 'bg 1',
-            info: 'about 1',
-            img: ''
+            name: '',
+            starting_proficiencies: '',
+            tool_proficiencies: '',
+            language_options: {},
+            starting_equipment: [],
+            starting_equipment_options: [],
+            feature_name: '',
+            feature_desc: '',
         }
     ]);
     const [characterAbilities, setCharacterAbilities] = useState([
@@ -119,7 +125,7 @@ function CharacterCreator(){
     const handleSetCharAbilities = (index) => {
         const newAbilities = []
         for (let i = 0; i < charAbilities.length; i++) {
-            if(i == index)
+            if(i === index)
                 newAbilities[i] = dieRollResult;
             else
                 newAbilities[i] = charAbilities[i];
@@ -221,10 +227,43 @@ function CharacterCreator(){
             setloadedAbilities(true);
         }
     }
+    const fetchBackground = (index) => {
+        Axios.get("https://www.dnd5eapi.co/api/backgrounds/" + index).then(
+            (r) => {
+                let item = JSON.parse(JSON.stringify(r.data))
+                setCharacterBackgrounds(prevItems => [...prevItems, {
+                    name: item.name,
+                    starting_proficiencies: item.starting_proficiencies,
+                    tool_proficiencies: item.tool_proficiencies,
+                    language_options: item.language_options,
+                    starting_equipment: item.starting_equipment,
+                    starting_equipment_options: item.starting_equipment_options,
+                    feature_name: item.feature.name,
+                    feature_desc: item.feature.desc,
+                }]);
+            }
+        )
+    }
+    const loadBackground = () => {
+        if(!loadedBackgrounds) {
+            setCharacterBackgrounds([]);
+            Axios.get("https://www.dnd5eapi.co/api/backgrounds").then(
+                (r) => {
+                    let len = JSON.parse(JSON.stringify(r.data.count));
+                    for(let i = 0; i < len; i++) {
+                        let item = JSON.parse(JSON.stringify(r.data.results[i]));
+                        fetchBackground(item.index);
+                    }
+                }
+            )
+            setloadedBackgrounds(true);
+        }
+    }
 
     loadRaces();
     loadClasses();
     loadAbilities();
+    loadBackground();
     /* ----------------return JSX stuff---------------- */
 
     return(
@@ -312,8 +351,15 @@ function CharacterCreator(){
                             {/* <Card.Img src={optBackground.img} height='150px'/> */}
                             <Card.Body>
                                 <Card.Text>
-                                    {optBackground.name} information:
-                                    <p>{optBackground.info}</p>
+                                    <h5>{optBackground.name}</h5><hr/>
+                                    {/*
+                                    <p>{optBackground.starting_proficiencies}</p>
+                                    <p>{optBackground.tool_proficiencies}</p>
+                                    <p>{optBackground.language_options}</p>
+                                    <p>{optBackground.starting_equipment}</p>
+                                    */}
+                                    <p>Feature: {optBackground.feature_name}</p>
+                                    <p>{optBackground.feature_desc}</p>
                                 </Card.Text>
                             </Card.Body>
                         </Card>
@@ -325,8 +371,17 @@ function CharacterCreator(){
                     <Col xs={7} className='characterOptionsCol'>
                         <Card className='characterOptionsCard characterCreatorCard' border='light'>
                             <Card.Header>Ability Scores</Card.Header>
-                            <Tabs>
-                                <Tab eventKey='point-buy' title='Point Buy'>
+                            <Tabs defaultActiveKey='dice-roll' onSelect={(activeKey) => {
+                                    if(activeKey === 'point-buy'){
+                                        setCharAbilities([8,8,8,8,8,8]);
+                                        setAbilityPoints(27);
+                                    }
+                                    else {
+                                        setCharAbilities([0,0,0,0,0,0]);
+                                    }
+                                }    
+                            }>
+                                <Tab eventKey='point-buy' title='Point Buy' >
                                     <Card.Body>
                                         <CardGroup>
                                             {characterAbilities.map((item, index) => {
