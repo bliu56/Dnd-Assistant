@@ -1,6 +1,6 @@
 import './CharacterDisplay.css';
 import React, { useState } from 'react';
-import { Container, Row, Col, CardGroup, Card, Form, Button, ToggleButton, ToggleButtonGroup, DropdownButton, Tabs, Tab, ButtonToolbar } from 'react-bootstrap';
+import { Container, Row, Col, CardGroup, Card, Form, Button, ToggleButton, ToggleButtonGroup, DropdownButton, Tabs, Tab, ButtonToolbar, InputGroup } from 'react-bootstrap';
 
 function characterDisplayCardSeriesRow(list,type){
     return(
@@ -18,6 +18,7 @@ function characterDisplayCardSeriesRow(list,type){
         </CardGroup>
     );
 }
+
 function characterDisplayCardSeriesColumn(list,type,name){
     return(
         <Card className='characterDisplayCard' border='light'>
@@ -30,6 +31,28 @@ function characterDisplayCardSeriesColumn(list,type,name){
                             <Form.Control readOnly={false} type={type} value={item.value}/>
                         </Card.Body>
                     </Card>
+                );}
+            )}
+        </Card>
+    );
+}
+
+function characterDisplayCardMultipleSeriesColumn(list,itemList,name){
+    return(
+        <Card className='characterDisplayCard' border='light'>
+            <Card.Header>{name}</Card.Header>
+            {list.map(
+                (entry) => {return(
+                    <InputGroup>
+                        {itemList.map(
+                            (itemName) => {return(
+                                <>
+                                <InputGroup.Text>{itemName}:</InputGroup.Text>
+                                <Form.Control value={entry[itemName]}/>
+                                </>
+                            );}
+                        )}
+                    </InputGroup>
                 );}
             )}
         </Card>
@@ -111,6 +134,8 @@ function CharacterDisplay(){
     const characterSpeed = {name:'Speed',value:'...'};
     const characterVision = {name:'Vision',value:'...'};
 
+    const characterAttacksSpells = [{name:'',attack:'',damage:'',range:'',ammo:'',used:''}];
+
     return(
         <>
             <h2 className='characterDisplayTitle'>Character Display</h2>
@@ -179,7 +204,7 @@ function CharacterDisplay(){
                 {/* ----------------Attacks and Spells---------------- */}
                 <Container fluid className='AttacksSpellsInformation characterDisplayContainer'>
                     <Row>
-                        <Col>{characterDisplayCardSingle({name:'Attacks and Spellcasting',value:'...'},'number','textarea')}</Col>
+                        <Col>{characterDisplayCardMultipleSeriesColumn(characterAttacksSpells,['name','attack','damage','range','ammo','used'],'Attacks and Spellcasting')}</Col>
                     </Row>
                     <hr style={{color:'gray'}}></hr>
                 </Container>
@@ -195,7 +220,7 @@ function CharacterDisplay(){
                 {/* ----------------Other Proficiencies and Languages---------------- */}
                 <Container fluid className='Other characterDisplayContainer'>
                     <Row>
-                        <Col>{characterDisplayCardSingle({name:'Other Proficiences & Languages',value:'...'},'number','textarea')}</Col>
+                        <Col>{characterDisplayCardSingle({name:'Other Proficiences and Languages',value:'...'},'number','textarea')}</Col>
                     </Row>
                  <hr style={{color:'gray'}}></hr>
                 </Container>
