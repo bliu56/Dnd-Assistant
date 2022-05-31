@@ -667,6 +667,7 @@ function CharacterCreator(){
         
 
         myData.optRace=optRace;
+        myData.abilityScores=charAbilities;
 
 
         setDoc(doc(db,path, fileName), myData);
@@ -1269,8 +1270,7 @@ function CharacterCreator(){
             </Container>
 
             {/* ----------------Save Button---------------- */}
-            <Button className='saveButton'>Save</Button>
-            <button onClick={pushTofirebae}>Submit</button>
+            <button onClick={pushTofirebae}>Save</button>
 
 
         </>
