@@ -2,7 +2,7 @@ import './Home.css';
 import {Carousel} from 'react-bootstrap';
 import logo1 from '../img/Pen-and-Dice.jpg';
 import logo2 from '../img/spellbook.jpg'
-import { SidebarData } from '../comp/SidebarData';
+import { SidebarData } from '../comp/nav/SidebarData';
 import { Link, useNavigate } from 'react-router-dom';
 import * as BsIcons from "react-icons/bs";
 

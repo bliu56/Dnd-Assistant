@@ -269,6 +269,8 @@ function CharacterCreator(){
     const [dieRollResult,setdieRollResult] = useState([0]);
     const [curStat, setCurStat]            = useState({0 : 'CHA', 1 : 0});
 
+    const [loadedBackgrounds, setloadedBackgrounds] = useState()
+
     const [hitdie, setHitDie] = useState()
     const [hp, setHp] = useState(0);
 
@@ -299,11 +301,11 @@ function CharacterCreator(){
     const handleHp = (operation) => {
         if(operation === "max"){
             setHitDie(optClass.hit_die);
-            setHp(optClass.hit_die + Math.floor((charAbilities[0]-10)/2));
+            setHp(optClass.hit_die + Math.floor((charAbilities[1]-10)/2));
         }
         else if(operation === "roll"){
             setHitDie(diceRoll(1, optClass.hit_die))
-            setHp(diceRoll(1, optClass.hit_die, Math.floor((charAbilities[0]-10)/2)))
+            setHp(diceRoll(1, optClass.hit_die, Math.floor((charAbilities[1]-10)/2)))
         }
     }
 
@@ -472,6 +474,40 @@ function CharacterCreator(){
                 )
             setloadedAbilities(true);
         }
+    }
+
+    // Background
+    const loadBackground = () => {
+        if(!loadedBackgrounds) {
+            setCharacterBackgrounds([]);
+            Axios.get("https://www.dnd5eapi.co/api/backgrounds").then(
+                (r) => {
+                    let len = JSON.parse(JSON.stringify(r.data.count));
+                    for(let i = 0; i < len; i++) {
+                        let item = JSON.parse(JSON.stringify(r.data.results[i]));
+                        fetchBackground(item.index);
+                    }
+                }
+            )
+            setloadedBackgrounds(true);
+        }
+    }
+    const fetchBackground = (index) => {
+        Axios.get("https://www.dnd5eapi.co/api/backgrounds/" + index).then(
+            (r) => {
+                let item = JSON.parse(JSON.stringify(r.data))
+                setCharacterBackgrounds(prevItems => [...prevItems, {
+                    name: item.name,
+                    starting_proficiencies: item.starting_proficiencies,
+                    tool_proficiencies: item.tool_proficiencies,
+                    language_options: item.language_options,
+                    starting_equipment: item.starting_equipment,
+                    starting_equipment_options: item.starting_equipment_options,
+                    feature_name: item.feature.name,
+                    feature_desc: item.feature.desc,
+                }]);
+            }
+        )
     }
     
     /* -------------------------------------------------------------------------- CLASS --------------------------------------------*/
@@ -675,202 +711,6 @@ function CharacterCreator(){
         catch{}
     }
 
-    const fetchBackground = (index) => {
-        Axios.get("https://www.dnd5eapi.co/api/backgrounds/" + index).then(
-            (r) => {
-                let item = JSON.parse(JSON.stringify(r.data))
-                setCharacterBackgrounds(prevItems => [...prevItems, {
-                    name: item.name,
-                    starting_proficiencies: item.starting_proficiencies,
-                    tool_proficiencies: item.tool_proficiencies,
-                    language_options: item.language_options,
-                    starting_equipment: item.starting_equipment,
-                    starting_equipment_options: item.starting_equipment_options,
-                    feature_name: item.feature.name,
-                    feature_desc: item.feature.desc,
-                }]);
-            }
-        )
-    }
-    
-    // // Gets the correct class file, then automatically makes the class tab selecetd and disables the rest
-    // const setClassTab = (e) => {
-    //     if(e === "Bard"){
-    //         setClassFile(file.Bard);
-    //         setArrayNum(0)
-    //         setTabTrue();
-    //         setBardTab(false);
-    //         setTabKey("bard")
-    //     }
-    //     else if (e === "Barbarian"){
-    //         setClassFile(file.Barbarian);
-    //         setArrayNum(0)
-    //         setTabTrue();
-    //         setBarbTab(false);
-    //         setTabKey("barbarian")
-    //     }
-    //     else if (e === "Druid"){
-    //         setClassFile(file.Druid)
-    //         setArrayNum(0)
-    //         setTabTrue();
-    //         setDruidTab(false);
-    //         setTabKey("druid")
-    //     }
-    //     else if (e === "Cleric"){
-    //         setClassFile(file.Cleric)
-    //         setArrayNum(0)
-    //         setTabTrue();
-    //         setClericTab(false);
-    //         setTabKey("cleric")
-    //     }
-    //     else if (e === "Fighter"){
-    //         setClassFile(file.Fighter)
-    //         setArrayNum(0)
-    //         setTabTrue();  
-    //         setFighterTab(false);
-    //         setTabKey("fighter")
-    //     }
-    //     else if (e === "Monk"){
-    //         setClassFile(file.Monk)
-    //         setArrayNum(2)
-    //         setTabTrue();
-    //         setMonkTab(false);
-    //         setTabKey("monk")
-    //     }
-    //     else if (e === "Paladin"){
-    //         setClassFile(file.Paladin)
-    //         setArrayNum(0)
-    //         setTabTrue();
-    //         setPaladinTab(false);
-    //         setTabKey("paladin")
-    //     }
-    //     else if (e === "Ranger"){
-    //         setClassFile(file.Ranger)
-    //         setArrayNum(0)
-    //         setTabTrue();
-    //         setRangerTab(false);
-    //         setTabKey("ranger")
-    //     }
-    //     else if (e === "Rogue"){
-    //         setClassFile(file.Rogue)
-    //         setArrayNum(0)
-    //         setTabTrue();
-    //         setRogueTab(false);
-    //         setTabKey("rogue")
-    //     }
-    //     else if (e === "Warlock"){
-    //         setClassFile(file.Warlock)
-    //         setArrayNum(0)
-    //         setTabTrue();
-    //         setWarlockTab(false);
-    //         setTabKey("warlock")
-    //     }
-    //     else if (e === "Sorcerer"){
-    //         setClassFile(file.Sorcerer)
-    //         setArrayNum(0)
-    //         setTabTrue();
-    //         setSorcererTab(false);
-    //         setTabKey("sorcerer")
-    //     }
-    //     else if (e === "Wizard"){
-    //         setClassFile(file.Wizard)
-    //         setArrayNum(0)
-    //         setTabTrue();
-    //         setWizardTab(false);
-    //         setTabKey("wizard")
-    //     }
-    // }   
-
-    // /* ------------------------------------------------------------------------- Class Prof -----------------------------------*/
-    // const profChoices = () => {
-    //     try{
-    //         Axios.get("https://www.dnd5eapi.co/api/classes/" + optClass.name.toLowerCase()).then(
-    //             (r) => {
-    //                 let temp = JSON.parse(JSON.stringify(r.data));
-    //                 let choiceArray = temp.proficiency_choices[arrayNum].from;
-    //                 let tempArray = []  
-    //                 for( let q = 0; q < choiceArray.length; q++){
-    //                     var result = raceSkills.filter(skill => skill.name === choiceArray[q].index.substring(6))
-    //                     try{
-    //                         if(result[0].state === false){
-    //                             tempArray.push({name:choiceArray[q].index.substring(6), state: result[0].state})
-    //                         }
-    //                     }
-    //                     catch{}
-    //                 }
-
-    //                 setSkillChoiceNum(temp.proficiency_choices[arrayNum].choose)
-    //                 setClassChoices(tempArray)
-    //             }
-    //         )
-    //     }
-    //     catch{}
-    // }
-
-    // const updateSkillChoice = (choice) => {
-    //     setClassChoices(
-    //         classChoices.map( (prevChoice) =>
-    //             prevChoice.name === choice? {...prevChoice, state: !prevChoice.state} : {...prevChoice}
-    //         )
-    //     );
-
-    //     setClassSkills(
-    //         classSkills.map( (prevChoice) =>
-    //             prevChoice.name === choice? {...prevChoice, state: !prevChoice.state} : {...prevChoice}
-    //         )
-    //     );
-    // }
-
-    // /* --------------------------------------------------------------------- Languages -------------------------------------*/
-    // const updateLangChoice = (choice) => {
-    //     setLangRaceChoices(
-    //         langRaceChoices.map( (prevChoice) =>
-    //             prevChoice.name === choice? {...prevChoice, state: !prevChoice.state} : {...prevChoice}
-    //         )
-    //     );
-
-    //     setLangClassChoices(
-    //         langClassChoices.map( (l) =>
-    //             l.name === choice? {...l, state: !l.state}:{...l}
-    //         )
-    //     )
-    // }
-
-    // const addDraconic = () => {
-    //     setKnownLanguages((prev)=>[...prev, "draconic"])
-    // }
-
-    // const langChoice = (e) => {
-    //     try{
-    //         let temp = e.languages;
-    //         let tempArray = []
-    //         for(let q = 0; q < temp.length; q++){
-    //             let lang = temp[q].index
-    //             tempArray.push(lang)
-
-    //             setLangClassChoices(
-    //                 langClassChoices.map( (l) =>
-    //                     l.name === lang? {...l, state: !l.state}:{...l}
-    //                 )
-    //             )
-    //         }
-
-    //         setKnownLanguages(tempArray);
-
-    //         try{
-    //             setLangChoiceNum(1);
-    //             let tempLangArray = e.language_options.from;
-    //             for(let q = 0; q< tempLangArray.length; q++){
-    //                 setLangRaceChoices((prev) => [...prev, {name: tempLangArray[q].index, state: false}])
-    //             }
-    //         }
-    //         catch{
-    //             setLangChoiceNum(0)
-    //         }
-    //     }
-    //     catch{}
-    // }
-    /* ----------------return JSX stuff---------------- */
     useEffect(() => {
         let tempArray = [];
         try{
@@ -1620,10 +1460,10 @@ function CharacterCreator(){
                             <Card.Header>HP</Card.Header>
                             <Card.Body>
                                 Hit Die: {optClass.hit_die} <br/>
-                                Constitution Modifier: {Math.floor((charAbilities[0]-10)/2)} <br/>
+                                Constitution Modifier: {Math.floor((charAbilities[1]-10)/2)} <br/>
                                 HP Formula : Hit Die + Constitution Modifier = Starting HP <br/>
 
-                                [{hitdie}] + [{Math.floor((charAbilities[0]-10)/2)}] = {hp}
+                                [{hitdie}] + [{Math.floor((charAbilities[1]-10)/2)}] = {hp}
 
                                 <hr/>
 
