@@ -659,6 +659,12 @@ function CharacterCreator(){
             myData={"optClass":optClass,"patron":selectedPatron};
 
         }
+        else if (optClass.name==="Druid" || optClass.name==="Barbarian" || optClass.name==="Monk" || optClass.name==="Bard" || optClass.name==="Paladin" || optClass.name==="Ranger" || optClass.name==="Rouge" || optClass.name==="Wizard")
+        {
+            myData={"optClass":optClass};
+
+        }
+        
 
         myData.optRace=optRace;
 
