@@ -330,6 +330,12 @@ function CharacterCreator(){
     }
     const handleSetAbilityScore = (event, index, isBuy) => {
         let newScore = Number(event.target.value);
+        if (newScore < 8){
+            newScore = 8;
+        }
+        else if (newScore > 15) {
+            newScore =15;
+        }
         let remainingAbilityPoints = abilityPoints + charAbilities[index] - newScore
         if(remainingAbilityPoints >= 0 || !isBuy) {
             charAbilities[index] = newScore;
