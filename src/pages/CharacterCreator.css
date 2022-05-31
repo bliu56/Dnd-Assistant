@@ -21,3 +21,8 @@
     font-size: 11pt;
     line-height: 1.15;
 }
+
+.toggleButtons{
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+}

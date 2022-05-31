@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Form, Button} from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase-config';
+import { auth } from '../../firebase-config';
 
 function Login(){
 

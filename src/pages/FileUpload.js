@@ -28,10 +28,10 @@ function FileUpload(){
                     reader.readAsText(file);
                     reader.onload = function() {
                         var data = JSON.parse(reader.result);
-                        //var user=auth.currentUser;
-                        //const uid=user.uid;
+                        var user=auth.currentUser;
+                        const uid=user.uid;
 
-                        const uid="BWLSuKe0yMw206XTBrxC";
+                       // const uid="BWLSuKe0yMw206XTBrxC";
                         const path="User/"+uid+"/characters"
                         const fileName=file.name;
                         //setDoc("User/BWLSuKe0yMw206XTBrxC/characters", "test");
