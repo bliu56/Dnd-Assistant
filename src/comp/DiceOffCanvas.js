@@ -1,6 +1,6 @@
 import React from 'react';
 import {Offcanvas, Button, ButtonGroup, Form } from 'react-bootstrap';
-import {diceRoll} from '../diceRoll.js';
+import {diceRoll} from './diceRoll.js';
 
 class DiceOffCanvas extends React.Component {
     constructor(props) {
