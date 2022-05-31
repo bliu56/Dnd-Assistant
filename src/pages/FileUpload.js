@@ -10,7 +10,7 @@ const db=getFirestore();
 
 function FileUpload(){
 
-    const [extratedData, setData] = useState();
+    const [extratedData, setData] = useState([]);
 
     const [file, fileToChange] = useState();
 
@@ -37,7 +37,13 @@ function FileUpload(){
                         //setDoc("User/BWLSuKe0yMw206XTBrxC/characters", "test");
                         //const colRef=collection()
                         setDoc(doc(db,path, fileName), data);
+
                         
+
+                        
+
+
+                       // setDoc(doc(db,path,"test2.json"),extratedData);
 
                         //SEPERATE folder should be named w/ uid
                         //ping/connect firebase w/ specific userID
