@@ -1,7 +1,7 @@
 {
     "Barbarian": {
-        "Class Features": {
-            "content": "As a barbarian, you gain the following class features.",
+        "Class_Features": {
+            "content": "As a barbarian, you gain the following Class_Features.",
             "Hit Points": {
                 "content": [
                     "**Hit Dice:** 1d12 per barbarian level",
@@ -203,8 +203,8 @@
         }
     },
     "Bard": {
-        "Class Features": {
-            "content": "As a bard, you gain the following class features.",
+        "Class_Features": {
+            "content": "As a bard, you gain the following Class_Features.",
             "Hit Points": {
                 "content": [
                     "**Hit Dice:** 1d8 per bard level",
@@ -625,8 +625,8 @@
         }
     },
     "Cleric": {
-        "Class Features": {
-            "content": "As a cleric, you gain the following class features.",
+        "Class_Features": {
+            "content": "As a cleric, you gain the following Class_Features.",
             "Hit Points": {
                 "content": [
                     "**Hit Dice:** 1d8 per cleric level",
@@ -1060,8 +1060,8 @@
         }
     },
     "Druid": {
-        "Class Features": {
-            "content": "As a druid, you gain the following class features.",
+        "Class_Features": {
+            "content": "As a druid, you gain the following Class_Features.",
             "Hit Points": {
                 "content": [
                     "**Hit Dice:** 1d8 per druid level",
@@ -1606,8 +1606,8 @@
         }
     },
     "Fighter": {
-        "Class Features": {
-            "content": "As a fighter, you gain the following class features.",
+        "Class_Features": {
+            "content": "As a fighter, you gain the following Class_Features.",
             "Hit Points": {
                 "content": [
                     "**Hit Dice:** 1d10 per fighter level",
@@ -1755,8 +1755,8 @@
         }
     },
     "Monk": {
-        "Class Features": {
-            "content": "As a monk, you gain the following class features.",
+        "Class_Features": {
+            "content": "As a monk, you gain the following Class_Features.",
             "Hit Points": {
                 "content": [
                     "**Hit Dice:** 1d8 per monk level",
@@ -2008,8 +2008,8 @@
         }
     },
     "Paladin": {
-        "Class Features": {
-            "content": "As a paladin, you gain the following class features.",
+        "Class_Features": {
+            "content": "As a paladin, you gain the following Class_Features.",
             "Hit Points": {
                 "content": [
                     "**Hit Dice:** 1d10 per paladin level",
@@ -2371,8 +2371,8 @@
         }
     },
     "Ranger": {
-        "Class Features": {
-            "content": "As a ranger, you gain the following class features.",
+        "Class_Features": {
+            "content": "As a ranger, you gain the following Class_Features.",
             "Hit Points": {
                 "content": [
                     "**Hit Dice:** 1d10 per ranger level",
@@ -2720,8 +2720,8 @@
         }
     },
     "Rogue": {
-        "Class Features": {
-            "content": "As a rogue, you have the following class features.",
+        "Class_Features": {
+            "content": "As a rogue, you have the following Class_Features.",
             "Hit Points": {
                 "content": [
                     "**Hit Dice:** 1d8 per rogue level",
@@ -2892,8 +2892,8 @@
         }
     },
     "Sorcerer": {
-        "Class Features": {
-            "content": "As a sorcerer, you gain the following class features.",
+        "Class_Features": {
+            "content": "As a sorcerer, you gain the following Class_Features.",
             "Hit Points": {
                 "content": [
                     "**Hit Dice:** 1d6 per sorcerer level",
@@ -3411,8 +3411,8 @@
         }
     },
     "Warlock": {
-        "Class Features": {
-            "content": "As a warlock, you gain the following class features.",
+        "Class_Features": {
+            "content": "As a warlock, you gain the following Class_Features.",
             "Hit Points": {
                 "content": [
                     "**Hit Dice:** 1d8 per warlock level",
@@ -3882,8 +3882,8 @@
         }
     },
     "Wizard": {
-        "Class Features": {
-            "content": "As a wizard, you gain the following class features.",
+        "Class_Features": {
+            "content": "As a wizard, you gain the following Class_Features.",
             "Hit Points": {
                 "content": [
                     "**Hit Dice:** 1d6 per wizard level",

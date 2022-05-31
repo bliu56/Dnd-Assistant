@@ -1,12 +1,13 @@
 import './CharacterCreator.css';
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, CardGroup, Card, Form, Button, ToggleButton, ToggleButtonGroup, DropdownButton, Tabs, Tab, ButtonToolbar, ButtonGroup } from 'react-bootstrap';
-import { dropMinRoll } from '../dropMinRoll';
+import { dropMinRoll } from '../comp/dropMinRoll';
 import Select from 'react-select'
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 import Axios from 'axios';
 import { doc, getFirestore, setDoc } from "firebase/firestore"; 
 import { auth } from '../firebase-config';
+import { diceRoll } from '../comp/diceRoll';
 
 
 const file = require("../json/classes.json")
@@ -118,8 +119,8 @@ function CharacterCreator(){
     // push if optclass = sorcerer
     const [selectedOrigin, setSelectedOrigin] = useState();
     const origin = [
-        { value: 'draconic-bloodline', label: 'Draconic Bloodline'},
         { value: 'wild-magic', label: 'Wild Magic'},
+        { value: 'draconic-bloodline', label: 'Draconic Bloodline'},
     ]
 
     // push if optclass = sorcerer and selecetedOrigin = dragonic-bloodline
@@ -144,6 +145,8 @@ function CharacterCreator(){
         { value: 'fiend', label: 'Fiend'},
         { value: 'great-old-one', label: 'Great Old One'},
     ]
+
+    const [arrayNum, setArrayNum] = useState(0)
 
     const [classProf, setClassProf] = useState([]);
     const [raceProf, setRaceProf] = useState([]);
@@ -190,8 +193,31 @@ function CharacterCreator(){
         { name: 'survival', state: false}
     ]);
 
-    const [choiceNum, setChoiceNum] = useState();
+    const [skillChoiceNum, setSkillChoiceNum] = useState();
     const [classChoices, setClassChoices] = useState([]);
+
+    const [knownLanguages, setKnownLanguages] = useState([]);
+
+    const [langChoiceNum, setLangChoiceNum] = useState();
+    const [langClassChoices, setLangClassChoices] = useState([
+        {name: "common", state: false},
+        {name: "dwarvish", state: false},
+        {name: "elvish", state: false},
+        {name: "giant", state: false},
+        {name: "gnomish", state: false},
+        {name: "goblin", state: false},
+        {name: "halfling", state: false},
+        {name: "orc", state: false},
+        {name: "abyssal", state: false},
+        {name: "celestial", state: false},
+        {name: "draconic", state: false},
+        {name: "deep-speech", state: false},
+        {name: "infernal", state: false},
+        {name: "primordial", state: false},
+        {name: "sylvan", state: false},
+        {name: "undercommon", state: false}
+    ]);
+    const [langRaceChoices, setLangRaceChoices] = useState([]);
 
     const [loadedRaces, setloadedRaces] = useState(false);
     const [loadedClasses, setloadedClasses] = useState(false);
@@ -214,7 +240,8 @@ function CharacterCreator(){
             hit_die: '',
             proficiencies: "",
             saving_throws: "",
-            skills: ""
+            skills: "",
+            hp: ""
         }
     ]);
     const [characterBackgrounds, setCharacterBackgrounds] = useState([
@@ -238,10 +265,17 @@ function CharacterCreator(){
     const [optClass,setOptClass] = useState(characterClasses[0]);
     const [optBackground,setOptBackground] = useState(characterBackgrounds[0]);
     const [optAbilities,setOptAbilities] = useState(characterAbilities[0]);
-    const [charAbilities,setCharAbilities] = useState([0,0,0,0,0,0]);
+    // Holds the character abilite scores in order:
+    // CON/CHA/DEX/STR/INT/WIS
+    const [charAbilities,setCharAbilities] = useState([8,8,8,8,8,8]);
     const [abilityPoints,setAbilityPoints] = useState(27);
     const [dieRollResult,setdieRollResult] = useState([0]);
     const [curStat, setCurStat]            = useState({0 : 'CHA', 1 : 0});
+
+    const [loadedBackgrounds, setloadedBackgrounds] = useState()
+
+    const [hitdie, setHitDie] = useState()
+    const [hp, setHp] = useState(0);
 
     const handleDomain = (e) => {
         setSelectedDomain(e.value);
@@ -267,6 +301,24 @@ function CharacterCreator(){
         setdieRollResult(dropMinRoll(4,6));
     }
 
+    const handleHp = (operation) => {
+        if(operation === "max"){
+            setHitDie(optClass.hit_die);
+            setHp(optClass.hit_die + Math.floor((charAbilities[1]-10)/2));
+        }
+        else if(operation === "roll"){
+            setHitDie(diceRoll(1, optClass.hit_die))
+            setHp(diceRoll(1, optClass.hit_die, Math.floor((charAbilities[1]-10)/2)))
+        }
+    }
+
+    /*-----------------------------------------------------------------------load Race/Class/Abilities Buttons------------------ */
+    useEffect(() => {
+        loadRaces();
+        loadClasses();
+        loadBackground();
+        loadAbilities(); // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const handleSetCharAbilities = (index) => {
         const newAbilities = []
@@ -281,6 +333,12 @@ function CharacterCreator(){
     }
     const handleSetAbilityScore = (event, index, isBuy) => {
         let newScore = Number(event.target.value);
+        if (newScore < 8){
+            newScore = 8;
+        }
+        else if (newScore > 15) {
+            newScore =15;
+        }
         let remainingAbilityPoints = abilityPoints + charAbilities[index] - newScore
         if(remainingAbilityPoints >= 0 || !isBuy) {
             charAbilities[index] = newScore;
@@ -289,12 +347,6 @@ function CharacterCreator(){
         }
     }
     
-    /*-----------------------------------------------------------------------load Race/Class/Abilities Buttons------------------ */
-    useEffect(() => {
-        loadRaces(); // eslint-disable-next-line react-hooks/exhaustive-deps
-        loadClasses(); // eslint-disable-next-line react-hooks/exhaustive-deps
-        loadAbilities(); // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
 
     //Races
     const fetchRaceInfo = (index) => {
@@ -360,8 +412,8 @@ function CharacterCreator(){
                 }
 
                 //skills
-                let choiceNum = item.proficiency_choices[0].choose;
-                let skillsArray = item.proficiency_choices[0].from;
+                let choiceNum = item.proficiency_choices[arrayNum].choose;
+                let skillsArray = item.proficiency_choices[arrayNum].from;
                 let choices = "";
                 let skill = "";
                 for(var e = 0; e < skillsArray.length; e++){
@@ -381,7 +433,8 @@ function CharacterCreator(){
                     hit_die: item.hit_die,
                     proficiencies: prof,
                     saving_throws: st,
-                    skills: skill
+                    skills: skill,
+                    hp: 0
                 }]);
             }
         )
@@ -431,6 +484,40 @@ function CharacterCreator(){
             setloadedAbilities(true);
         }
     }
+
+    // Background
+    const loadBackground = () => {
+        if(!loadedBackgrounds) {
+            setCharacterBackgrounds([]);
+            Axios.get("https://www.dnd5eapi.co/api/backgrounds").then(
+                (r) => {
+                    let len = JSON.parse(JSON.stringify(r.data.count));
+                    for(let i = 0; i < len; i++) {
+                        let item = JSON.parse(JSON.stringify(r.data.results[i]));
+                        fetchBackground(item.index);
+                    }
+                }
+            )
+            setloadedBackgrounds(true);
+        }
+    }
+    const fetchBackground = (index) => {
+        Axios.get("https://www.dnd5eapi.co/api/backgrounds/" + index).then(
+            (r) => {
+                let item = JSON.parse(JSON.stringify(r.data))
+                setCharacterBackgrounds(prevItems => [...prevItems, {
+                    name: item.name,
+                    starting_proficiencies: item.starting_proficiencies,
+                    tool_proficiencies: item.tool_proficiencies,
+                    language_options: item.language_options,
+                    starting_equipment: item.starting_equipment,
+                    starting_equipment_options: item.starting_equipment_options,
+                    feature_name: item.feature.name,
+                    feature_desc: item.feature.desc,
+                }]);
+            }
+        )
+    }
     
     /* -------------------------------------------------------------------------- CLASS --------------------------------------------*/
     // grab class file and manually direct the tab to the selected class
@@ -459,72 +546,84 @@ function CharacterCreator(){
     const setClassTab = (e) => {
         if(e === "Bard"){
             setClassFile(file.Bard);
+            setArrayNum(0)
             setTabTrue();
             setBardTab(false);
             setTabKey("bard")
         }
         else if (e === "Barbarian"){
             setClassFile(file.Barbarian);
+            setArrayNum(0)
             setTabTrue();
             setBarbTab(false);
             setTabKey("barbarian")
         }
         else if (e === "Druid"){
             setClassFile(file.Druid)
+            setArrayNum(0)
             setTabTrue();
             setDruidTab(false);
             setTabKey("druid")
         }
         else if (e === "Cleric"){
             setClassFile(file.Cleric)
+            setArrayNum(0)
             setTabTrue();
             setClericTab(false);
             setTabKey("cleric")
         }
         else if (e === "Fighter"){
             setClassFile(file.Fighter)
+            setArrayNum(0)
             setTabTrue();  
             setFighterTab(false);
             setTabKey("fighter")
         }
         else if (e === "Monk"){
             setClassFile(file.Monk)
+            setArrayNum(2)
             setTabTrue();
             setMonkTab(false);
             setTabKey("monk")
         }
         else if (e === "Paladin"){
             setClassFile(file.Paladin)
+            setArrayNum(0)
             setTabTrue();
             setPaladinTab(false);
             setTabKey("paladin")
         }
         else if (e === "Ranger"){
             setClassFile(file.Ranger)
+            setArrayNum(0)
             setTabTrue();
             setRangerTab(false);
             setTabKey("ranger")
         }
         else if (e === "Rogue"){
-            setClassFile(file.Rouge)
+            setClassFile(file.Rogue)
+            setArrayNum(0)
             setTabTrue();
             setRogueTab(false);
             setTabKey("rogue")
         }
         else if (e === "Warlock"){
             setClassFile(file.Warlock)
+            setArrayNum(0)
             setTabTrue();
             setWarlockTab(false);
             setTabKey("warlock")
         }
         else if (e === "Sorcerer"){
             setClassFile(file.Sorcerer)
+            setArrayNum(0)
             setTabTrue();
             setSorcererTab(false);
             setTabKey("sorcerer")
         }
         else if (e === "Wizard"){
             setClassFile(file.Wizard)
+            setArrayNum(0)
             setTabTrue();
             setWizardTab(false);
             setTabKey("wizard")
@@ -537,17 +636,19 @@ function CharacterCreator(){
             Axios.get("https://www.dnd5eapi.co/api/classes/" + optClass.name.toLowerCase()).then(
                 (r) => {
                     let temp = JSON.parse(JSON.stringify(r.data));
-                    let choiceArray = temp.proficiency_choices[0].from;
-                    let tempArray = []
-
+                    let choiceArray = temp.proficiency_choices[arrayNum].from;
+                    let tempArray = []  
                     for( let q = 0; q < choiceArray.length; q++){
                         var result = raceSkills.filter(skill => skill.name === choiceArray[q].index.substring(6))
-                        if(result[0].state === false){
-                            tempArray.push({name:choiceArray[q].index.substring(6), state: result[0].state})
+                        try{
+                            if(result[0].state === false){
+                                tempArray.push({name:choiceArray[q].index.substring(6), state: result[0].state})
+                            }
                         }
+                        catch{}
                     }
 
-                    setChoiceNum(temp.proficiency_choices[0].choose)
+                    setSkillChoiceNum(temp.proficiency_choices[arrayNum].choose)
                     setClassChoices(tempArray)
                 }
             )
@@ -555,7 +656,7 @@ function CharacterCreator(){
         catch{}
     }
 
-    const updateChoice = (choice) => {
+    const updateSkillChoice = (choice) => {
         setClassChoices(
             classChoices.map( (prevChoice) =>
                 prevChoice.name === choice? {...prevChoice, state: !prevChoice.state} : {...prevChoice}
@@ -569,19 +670,75 @@ function CharacterCreator(){
         );
     }
 
-    /* ----------------return JSX stuff---------------- */
+    /* --------------------------------------------------------------------- Languages -------------------------------------*/
+    const updateLangChoice = (choice) => {
+        setLangRaceChoices(
+            langRaceChoices.map( (prevChoice) =>
+                prevChoice.name === choice? {...prevChoice, state: !prevChoice.state} : {...prevChoice}
+            )
+        );
+
+        setLangClassChoices(
+            langClassChoices.map( (l) =>
+                l.name === choice? {...l, state: !l.state}:{...l}
+            )
+        )
+    }
+
+    const addDraconic = () => {
+        setKnownLanguages((prev)=>[...prev, "draconic"])
+    }
+
+    const langChoice = (e) => {
+        try{
+            let temp = e.languages;
+            let tempArray = []
+            for(let q = 0; q < temp.length; q++){
+                let lang = temp[q].index
+                tempArray.push(lang)
+
+                setLangClassChoices(
+                    langClassChoices.map( (l) =>
+                        l.name === lang? {...l, state: !l.state}:{...l}
+                    )
+                )
+            }
+
+            setKnownLanguages(tempArray);
+
+            try{
+                setLangChoiceNum(1);
+                let tempLangArray = e.language_options.from;
+                for(let q = 0; q< tempLangArray.length; q++){
+                    setLangRaceChoices((prev) => [...prev, {name: tempLangArray[q].index, state: false}])
+                }
+            }
+            catch{
+                setLangChoiceNum(0)
+            }
+        }
+        catch{}
+    }
+
     useEffect(() => {
         let tempArray = [];
         try{
             let profArray = classFile.Class_Features.Proficiencies;
             tempArray.push(profArray.content[0]);
             tempArray.push(profArray.content[1]);
-            profChoices();
+            profChoices(); 
         }
         catch(err){
-
         }
-        setClassProf(tempArray);
+
+        if(optClass.name === "Sorcerer"){
+            addDraconic();
+        }
+        else{
+            setKnownLanguages(knownLanguages.filter(prev => prev !== "draconic"));
+        }
+
+        setClassProf(tempArray); // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [classFile])
 
     /* ------------------------------------------------------------------------ Race Prof ----------------------------------*/
@@ -596,26 +753,24 @@ function CharacterCreator(){
                             var tempProf = tempR.starting_proficiencies[q].index;
                             let skillCheck = tempProf.substring(0,5)
                             if(skillCheck === 'skill'){
-                                let raceSkill = tempProf.substring(6)
-                                raceSkills.map((curSkill) => curSkill.name === raceSkill? curSkill.state = true : curSkill.state = false)
+                                let raceSkill = tempProf.substring(6) 
+                                raceSkills.map((curSkill) => curSkill.name === raceSkill? curSkill.state = true : curSkill.state = false) 
                             }
                             else
                             {
-                                tempArray.push(tempProf);
+                                tempArray.push(tempProf); 
                             }
                         }
                     }
-                    catch{}
-                    setRaceProf(tempArray);
-
-                    try{
-                    }
-                    catch{}
+                    catch{} 
+                    setRaceProf(tempArray); 
+                    setLangRaceChoices([]);
+                    langChoice(tempR);
                 }
             );
         }
         catch{}
-
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [optRace]);
 
     function pushTofirebae()
@@ -768,6 +923,17 @@ function CharacterCreator(){
                             <Card.Body>
                                 {optBackground.name} information:
                                 <p>{optBackground.info}</p>
+                                <Card.Text>
+                                    <h5>{optBackground.name}</h5><hr/>
+                                    {/*
+                                    <p>{optBackground.starting_proficiencies}</p>
+                                    <p>{optBackground.tool_proficiencies}</p>
+                                    <p>{optBackground.language_options}</p>
+                                    <p>{optBackground.starting_equipment}</p>
+                                    */}
+                                    <p>Feature: {optBackground.feature_name}</p>
+                                    <p>{optBackground.feature_desc}</p>
+                                </Card.Text>
                             </Card.Body>
                         </Card>
                     </Col>
@@ -802,7 +968,7 @@ function CharacterCreator(){
                                         </CardGroup>
                                         <p/>
                                         <div>
-                                            Points: {abilityPoints}
+                                            Points Left: {abilityPoints}
                                         </div>
                                     </Card.Body>
                                 </Tab>
@@ -1229,15 +1395,18 @@ function CharacterCreator(){
                                 </div>
                                 <hr/>
                                 <div>
-                                    Pick {choiceNum} <br/>
+                                    Skills from {optClass.name} <br/>
+                                    Pick {skillChoiceNum} : <br/>
                                     {classChoices.map((item, idx) => (
                                         <ToggleButton
                                             key={idx}
-                                            id={`radio-${idx}`}
+                                            id={item.name}
+                                            value={item.name}
                                             type="checkbox"
-                                            variant="primary"
+                                            variant="outline-primary"
                                             checked={item.state}
-                                            onChange={()=>{updateChoice(item.name)}}
+                                            className="charButton"
+                                            onChange={()=>{updateSkillChoice(item.name)}}
                                         >
                                             {item.name}
                                         </ToggleButton>
@@ -1259,11 +1428,149 @@ function CharacterCreator(){
                     </Col>
                 </Row>
 
+                {/*-----------------Language------------*/}
+                <Row className='characterCardRow'>
+                    <Col xs={7} className='characterOptionsCol'>
+                        <Card className='characterOptionsCard characterCreatorCard' border='light'>
+                            <Card.Header>Language</Card.Header>
+                            <Card.Body>
+                                <div>
+                                    {optClass.name === "Sorcerer"?
+                                            <div>
+                                                Language recieved from {optRace.name} + Sorcerer: {knownLanguages.map((item, index)=>(
+                                                    <div key={index}> {item} </div>
+                                                ))}
+                                            </div>
+                                        :
+                                            <div>
+                                                Language recieved from {optRace.name}: {knownLanguages.map((item, index)=>(
+                                                    <div key={index}> {item} </div>
+                                                ))}
+                                            </div>
+                                    }
+                                </div>
+                                
+                                {langChoiceNum > 0? 
+                                    <div>
+                                        <hr/>
+                                        <div>
+                                            Language from {optRace.name} <br/>
+                                            Pick {langChoiceNum} : <br/>
+                                            {langRaceChoices.map((item, idx) => (
+                                                <ToggleButton
+                                                key={idx}
+                                                id={item.name}
+                                                value={item.name}
+                                                type="checkbox"
+                                                variant="outline-primary"
+                                                className='charButton'
+                                                checked={item.state}
+                                                    onChange={()=>{updateLangChoice(item.name)}}
+                                                    >
+                                                    {item.name}
+                                                </ToggleButton>
+                                            ))}
+                                        
+                                        </div>
+                                    </div>
+                                    :
+                                    <></>
+                                }
+                                
+                                {
+                                    optClass.name === "Cleric"? 
+                                        selectedDomain === 'knowledge'?
+                                            <div>
+                                                <hr/>
+                                                Language from choesen Knowledge Cleric Domain <br/>
+                                                Pick 2: <br/>
+                                                {langClassChoices.map((item, idx) => (
+                                                    <ToggleButton
+                                                    key={idx}
+                                                    id={item.name}
+                                                    value={item.name}
+                                                    type="checkbox"
+                                                    variant="outline-primary"
+                                                    checked={item.state}
+                                                        onChange={()=>{updateLangChoice(item.name)}}
+                                                        >
+                                                        {item.name}
+                                                    </ToggleButton>
+                                                ))}
+                                            </div>
+                                        :
+                                            []
+                                    :
+                                    []
+                                }
+
+                            </Card.Body>
+                        </Card>
+                    </Col>
+
+                    {verticalRule()}
+
+                    <Col className='characterInfoCol'>
+                        <Card className='characterInfoCard characterCreatorCard' border='light'>
+                            <Card.Body>
+                                <Card.Text>information</Card.Text>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                </Row>
+
                 {/* ----------------HP---------------- */}
-                {characterCreatorCardPlaceHolder("HP")}
+                <Row className='characterCardRow'>
+                    <Col xs={7} className='characterOptionsCol'>
+                        <Card className='characterOptionsCard characterCreatorCard' border='light'>
+                            <Card.Header>HP</Card.Header>
+                            <Card.Body>
+                                Hit Die: {optClass.hit_die} <br/>
+                                Constitution Modifier: {Math.floor((charAbilities[1]-10)/2)} <br/>
+                                HP Formula : Hit Die + Constitution Modifier = Starting HP <br/>
+
+                                [{hitdie}] + [{Math.floor((charAbilities[1]-10)/2)}] = {hp}
+
+                                <hr/>
+
+                                <Button variant="primary" className='charButton' onClick={()=>{handleHp("max")}}>Max</Button>
+                                <Button variant="primary" className='charButton' onClick={()=>{handleHp("roll")}}>Roll</Button>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+
+                    {verticalRule()}
+
+                    <Col className='characterInfoCol'>
+                        <Card className='characterInfoCard characterCreatorCard' border='light'>
+                            {/* <Card.Img src={optRace.img} height='150px'/> */}
+                            <Card.Body>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                </Row>
 
                 {/* ----------------Spells---------------- */}
-                {characterCreatorCardPlaceHolder("Spells")}
+                <Row className='characterCardRow'>
+                    <Col xs={7} className='characterOptionsCol'>
+                        <Card className='characterOptionsCard characterCreatorCard' border='light'>
+                            <Card.Header>Spells</Card.Header>
+                            <Card.Body>
+                                
+                            </Card.Body>
+                        </Card>
+                    </Col>
+
+                    {verticalRule()}
+
+                    <Col className='characterInfoCol'>
+                        <Card className='characterInfoCard characterCreatorCard' border='light'>
+                            {/* <Card.Img src={optRace.img} height='150px'/> */}
+                            <Card.Body>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                </Row>
 
                 {/* ----------------Equipment---------------- */}
                 {characterCreatorCardPlaceHolder("Equipment")}
