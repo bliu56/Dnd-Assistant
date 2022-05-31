@@ -5,6 +5,9 @@ import { dropMinRoll } from '../dropMinRoll';
 import Select from 'react-select'
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 import Axios from 'axios';
+import { doc, getFirestore, setDoc } from "firebase/firestore"; 
+import { auth } from '../firebase-config';
+
 
 const file = require("../json/classes.json")
 
@@ -615,6 +618,56 @@ function CharacterCreator(){
 
     }, [optRace]);
 
+    function pushTofirebae()
+    {
+
+        const db=getFirestore();
+        var user=auth.currentUser;
+        const uid=user.uid;
+
+        const path="User/"+uid+"/characters"
+        const fileName="tst3.json";
+        console.log(optRace);
+
+        console.log("");
+        console.log(optClass);
+
+        var myData={};
+
+        if(optClass.name==="Cleric")
+        {
+            myData={"optClass":optClass,"domains":selectedDomain};
+        }
+
+        else if (optClass.name==="Fighter")
+        {
+            myData={"optClass":optClass,"styles":selectedStyle};
+
+        }
+        else if (optClass.name==="Sorcerer" && selectedOrigin==="draconic-bloodline")
+        {
+            myData={"optClass":optClass,"origin":selectedOrigin,"dragonAncestor":selectedDragonAncestor};
+
+        }
+        else if (optClass.name==="Sorcerer")
+        {
+            myData={"optClass":optClass,"origin":selectedOrigin};
+
+        }
+        else if (optClass.name==="Warlock")
+        {
+            myData={"optClass":optClass,"patron":selectedPatron};
+
+        }
+
+        myData.optRace=optRace;
+
+
+        setDoc(doc(db,path, fileName), myData);
+
+
+    }
+
     return(
         <>
             <h2 className='characterCreatorTitle'>Character Creator</h2>
@@ -1211,6 +1264,8 @@ function CharacterCreator(){
 
             {/* ----------------Save Button---------------- */}
             <Button className='saveButton'>Save</Button>
+            <button onClick={pushTofirebae}>Submit</button>
+
 
         </>
     );
