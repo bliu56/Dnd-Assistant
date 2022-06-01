@@ -246,8 +246,8 @@ function CharacterCreator(){
     ]);
     const [characterBackgrounds, setCharacterBackgrounds] = useState([
         {
-            name: 'bg 1',
-            info: 'about 1',
+            name: 'background',
+            info: '',
             img: ''
         }
     ]);
@@ -379,6 +379,7 @@ function CharacterCreator(){
             setloadedRaces(true);
         }
     }
+    
     //Classes
     const fetchClassInfo = (index) => {
         Axios.get("https://www.dnd5eapi.co/api/classes/" + index).then(
@@ -921,7 +922,7 @@ function CharacterCreator(){
                         <Card className='characterInfoCard characterCreatorCard' border='light'>
                             {/* <Card.Img src={optBackground.img} height='150px'/> */}
                             <Card.Body>
-                                {optBackground.name} information:
+                                Background:
                                 <p>{optBackground.info}</p>
                                 <Card.Text>
                                     <h5>{optBackground.name}</h5><hr/>

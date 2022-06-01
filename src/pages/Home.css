@@ -11,3 +11,8 @@ img {
     width:auto;
     height:auto;
 }
+
+.homePage{
+    height: calc( 100vh - 100px );
+    background-color: #CDE4FF;
+}

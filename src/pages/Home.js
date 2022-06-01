@@ -9,31 +9,35 @@ import * as BsIcons from "react-icons/bs";
 function Home(){
     let navigate = useNavigate();
     return(
-        <Carousel>
-            <Carousel.Item >
-                <img
-                className="d-block w-100"
-                src={logo1}
-                alt="First slide"
-                onClick={() => navigate('../character', {replace : true})}
-                />
-                <Carousel.Caption>
-                <h1>Create a Character</h1>
-                </Carousel.Caption>
-            </Carousel.Item>
-            <Carousel.Item>
-                <img
-                className="d-block w-100"
-                src={logo2}
-                alt="Second slide"
-                onClick={() => navigate('../spells', {replace : true})}
-                />
+        <>
+            <div className='homePage'>
+                <Carousel>
+                    <Carousel.Item >
+                        <img
+                        className="d-block w-100"
+                        src={logo1}
+                        alt="First slide"
+                        onClick={() => navigate('../character', {replace : true})}
+                        />
+                        <Carousel.Caption>
+                        <h1>Create a Character</h1>
+                        </Carousel.Caption>
+                    </Carousel.Item>
+                    <Carousel.Item>
+                        <img
+                        className="d-block w-100"
+                        src={logo2}
+                        alt="Second slide"
+                        onClick={() => navigate('../spells', {replace : true})}
+                        />
 
-                <Carousel.Caption>
-                <h1>Spellbook</h1>
-                </Carousel.Caption>
-            </Carousel.Item>
-        </Carousel>
+                        <Carousel.Caption>
+                        <h1>Spellbook</h1>
+                        </Carousel.Caption>
+                    </Carousel.Item>
+                </Carousel>
+            </div>
+        </>
     );
 }
 
