@@ -36,12 +36,12 @@ function characterCreatorCardPlaceHolder(name){
         </Row>
     );
 }
-function optionsToolBar(list, setItemFxn){
+function optionsToolBar(list, setItemFxn, size='md'){
     return(
         <ButtonToolbar>
             {list.map((item, index) => {
                 return(
-                    <Button className='charButton' onClick={() => setItemFxn(item)} key={index}>
+                    <Button className='charButton' onClick={() => setItemFxn(item)} key={index} size={size} variant='outline-primary'>
                         {item.name}
                     </Button>
                 );
@@ -49,27 +49,29 @@ function optionsToolBar(list, setItemFxn){
         </ButtonToolbar>
     );
 }
-function optionsToggleButtonGroup(name, list, setItemFxn){
+function optionsToggleButtonGroup(list, handleFxn, size='md'){
     return(
-        <ToggleButtonGroup name={name} type='radio' defaultValue={0}>
+        <ButtonToolbar>
             {list.map((item, index) => {
                 return(
-                    <ToggleButton className='charButton' id={item.name} key={index} onChange={() => setItemFxn(item)}>
+                    <ToggleButton className='charButton' type='checkbox' onChange={() => handleFxn(item)}
+                        id={item.name} value={item.name} key={index} checked={item.state}
+                        size={size} variant='outline-primary'>
                         {item.name}
                     </ToggleButton>
                 );
             })}
-        </ToggleButtonGroup>
+        </ButtonToolbar>
     );
 }
-function optionsDropdown(topItem, list, setItemFxn){
+function optionsDropdown(name, list, setItemFxn){
     return(
-        <DropdownButton title={topItem.name}>
+        <DropdownButton title={name}>
             {list.map((item, index) => {
                 return(
                     <DropdownItem onClick={() => setItemFxn(item)} key={index}>{item.name}</DropdownItem>
                 );
-                })}
+            })}
         </DropdownButton>
     );
 }
@@ -259,12 +261,26 @@ function CharacterCreator(){
             desc: []
         }
     ]);
+    const [characterSpells, setCharacterSpells] = useState([
+        {
+            name:'',
+            desc:''
+        }
+    ]);
+    const [characterCantrips, setCharacterCantrips] = useState([
+        {
+            name:'',
+            desc:''
+        }
+    ]);
+    const [characterSpellCount,setCharacterSpellCount] = useState({cantrips:0,spells:0});
 
     //push optRace, optClass, abilities
     const [optRace,setOptRace] = useState(characterRaces[0]);
     const [optClass,setOptClass] = useState(characterClasses[0]);
     const [optBackground,setOptBackground] = useState(characterBackgrounds[0]);
     const [optAbilities,setOptAbilities] = useState(characterAbilities[0]);
+    const [viewSpell,setViewSpell] = useState(characterSpells[0]);
     // Holds the character abilite scores in order:
     // CON/CHA/DEX/STR/INT/WIS
     const [charAbilities,setCharAbilities] = useState([8,8,8,8,8,8]);
@@ -317,6 +333,7 @@ function CharacterCreator(){
         loadRaces();
         loadClasses();
         loadBackground();
+        loadSpells();
         loadAbilities(); // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -518,11 +535,81 @@ function CharacterCreator(){
             }
         )
     }
+    // Spells
+    const fetchSpell = (index) => {
+        Axios.get("https://www.dnd5eapi.co/api/spells/" + index).then(
+            (r) => {
+                let item = JSON.parse(JSON.stringify(r.data))
+                let classes = item.classes;
+                let len = item.classes.length;
+                if (item.level === 0) {
+                    for(let i = 0; i < len; i ++) {
+                        if(classes[i].name === optClass.name) {
+                            setCharacterCantrips(prevItems => [...prevItems, {
+                                name: item.name,
+                                desc: item.desc,
+                                level: item.level,
+                                state: false,
+                            }]);
+                            break;
+                        }
+                    }
+                }
+                else if (item.level === 1) {
+                    for(let i = 0; i < len; i ++) {
+                        if(classes[i].name === optClass.name) {
+                            setCharacterSpells(prevItems => [...prevItems, {
+                                name: item.name,
+                                desc: item.desc,
+                                level: item.level,
+                            }]);
+                            break;
+                        }
+                    }
+                }
+            }
+        )
+    }
+    const loadSpells = () => {
+            Axios.get("https://www.dnd5eapi.co/api/spells").then(
+                (r) => {
+                    let len = JSON.parse(JSON.stringify(r.data.count));
+                    setCharacterSpells([]);
+                    setCharacterCantrips([]);
+                    for(let i = 0; i < len; i ++) {
+                        let item = JSON.parse(JSON.stringify(r.data.results[i]));
+                        fetchSpell(item.index);
+                    }
+                }
+            )
+    }
+    const setSpellsCount = () => {
+        if(optClass.name === 'Cleric') {setCharacterSpellCount({cantrips:3,spells:1})}//
+        else if(optClass.name === 'Bard') {setCharacterSpellCount({cantrips:2,spells:4})}
+        else if(optClass.name === 'Druid') {setCharacterSpellCount({cantrips:2,spells:1})}//
+        else if(optClass.name === 'Paladin') {setCharacterSpellCount({cantrips:0,spells:1})}//
+        else if(optClass.name === 'Ranger') {setCharacterSpellCount({cantrips:0,spells:2})}
+        else if(optClass.name === 'Sorcerer') {setCharacterSpellCount({cantrips:4,spells:2})}
+        else if(optClass.name === 'Warlock') {setCharacterSpellCount({cantrips:2,spells:2})}
+        else if(optClass.name === 'Wizard') {setCharacterSpellCount({cantrips:3,spells:6})}
+        else {setCharacterSpellCount({cantrips:0,spells:0})}
+    }
+    const handlePickSpell = (item) => {
+        setViewSpell(item);
+        if(item.state) {
+            item.state = false;
+        } else {
+            item.state = true;
+        }
+    }
     
     /* -------------------------------------------------------------------------- CLASS --------------------------------------------*/
     // grab class file and manually direct the tab to the selected class
     useEffect(() => {
         let temp = optClass.name;
+        setViewSpell({name:'',desc:''});
+        setSpellsCount();
+        loadSpells();
         setClassTab(temp); // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [optClass])
     
@@ -969,7 +1056,7 @@ function CharacterCreator(){
                         <Card className='characterOptionsCard characterCreatorCard' border='light'>
                             <Card.Header>Background</Card.Header>
                             <Card.Body>
-                                {optionsDropdown(optBackground,characterBackgrounds,setOptBackground)}
+                                {optionsDropdown('background',characterBackgrounds,setOptBackground)}
                             </Card.Body>
                         </Card>
                     </Col>
@@ -1615,7 +1702,11 @@ function CharacterCreator(){
                         <Card className='characterOptionsCard characterCreatorCard' border='light'>
                             <Card.Header>Spells</Card.Header>
                             <Card.Body>
-                                
+                                <div>Cantrips: (choose {characterSpellCount.cantrips})<p/></div>
+                                {optionsToggleButtonGroup(characterCantrips,handlePickSpell,'sm')}
+                                <hr/>
+                                <div>Spells: (choose {characterSpellCount.spells})<p/></div>
+                                {optionsToggleButtonGroup(characterSpells,handlePickSpell,'sm')}
                             </Card.Body>
                         </Card>
                     </Col>
@@ -1626,6 +1717,9 @@ function CharacterCreator(){
                         <Card className='characterInfoCard characterCreatorCard' border='light'>
                             {/* <Card.Img src={optRace.img} height='150px'/> */}
                             <Card.Body>
+                                    <h5><strong>Spell: </strong>{viewSpell.name}</h5><hr/>
+                                    <p><strong>Level: </strong>{viewSpell.level}</p><hr/>
+                                    <div>{viewSpell.desc}</div>
                             </Card.Body>
                         </Card>
                     </Col>
