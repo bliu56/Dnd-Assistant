@@ -276,6 +276,7 @@ function CharacterCreator(){
     const [characterSpellCount,setCharacterSpellCount] = useState({cantrips:0,spells:0});
 
     //push optRace, optClass, abilities
+    const [optName,setOptName] = useState('');
     const [optRace,setOptRace] = useState(characterRaces[0]);
     const [optClass,setOptClass] = useState(characterClasses[0]);
     const [optBackground,setOptBackground] = useState(characterBackgrounds[0]);
@@ -336,6 +337,10 @@ function CharacterCreator(){
         loadSpells();
         loadAbilities(); // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    const handleChangeName = (event) => {
+        setOptName(event.target.value);
+    }
 
     const handleSetCharAbilities = (index) => {
         const newAbilities = []
@@ -981,6 +986,30 @@ function CharacterCreator(){
             <h2 className='characterCreatorTitle'>Character Creator</h2>
 
             <Container fluid className='characterCreatorContainer'>
+                {/* ----------------Name---------------- */}
+                <Row className='characterCardRow'>
+                    <Col xs={7} className='characterOptionsCol'>
+                        <Card className='characterOptionsCard characterCreatorCard' border='light'>
+                            <Card.Header>Name</Card.Header>
+                            <Card.Body>
+                                <Form.Control type='text' value={optName} onChange={(e)=>handleChangeName(e)}></Form.Control>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+
+{verticalRule()}
+
+<Col className='characterInfoCol'>
+    <Card className='characterInfoCard characterCreatorCard' border='light'>
+        {/* <Card.Img src={optRace.img} height='150px'/> */}
+        <Card.Body>
+                <h5><strong>Character Name: </strong></h5>
+                <p>{optName}</p>
+        </Card.Body>
+    </Card>
+</Col>
+                </Row>
+
 
                 {/* ----------------Race---------------- */}
                 <Row className='characterCardRow'>
