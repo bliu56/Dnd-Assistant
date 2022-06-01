@@ -14,13 +14,12 @@ function getData() {
             snapshot.docs.forEach((doc) => {
                 characterData.push({...doc.data()})
             })
-            console.log(characterData)
-            console.log(characterData[3])
+            console.log(characterData[0])
+            return characterData[0]
         })
         .catch(err => {
             console.log(err.message)
         })
-
 }
 
 function characterDisplayCardSeriesRow(list,type){
@@ -113,7 +112,8 @@ function characterDisplayCardSingle(item,type,as='input'){
 }
 
 function CharacterDisplay(){
-    getData();
+    let charData = getData();
+    console.log(charData);
 
     const characterName = {name:'Character Name',value:'...name'};
     const characterLevel = {name:'Level',value:'0'};
@@ -127,10 +127,10 @@ function CharacterDisplay(){
 
     const abilityScores = [{name:'CHA',value:0},
                             {name:'CON',value:0},
-                            {name:'DEX',value:0},
-                            {name:'INT',value:0},
                             {name:'STR',value:0},
-                            {name:'WIS',value:0}];
+                            {name:'DEX',value:0},
+                            {name:'WIS',value:0},
+                            {name:'INT',value:0}];
     const characterInspiration = {name:'Inspiration',value:'...'};
     const characterProficiencyBonus = {name:'Proficiency Bonus',value:''};
     const characterPassivePerception = {name:'Passive Perception',value:'...'};
