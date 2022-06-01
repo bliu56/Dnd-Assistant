@@ -1,6 +1,24 @@
 import './CharacterDisplay.css';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, CardGroup, Card, Form, Button, ToggleButton, ToggleButtonGroup, DropdownButton, Tabs, Tab, ButtonToolbar, InputGroup } from 'react-bootstrap';
+import { doc, getFirestore, getDoc, collection, getDocs } from "firebase/firestore"; 
+
+const uid="PlfD8dnXj1UjlbaVPn4ndnSUQNP2";
+const path="User/"+uid+"/characters/";
+const db = getFirestore()
+const colRef = collection(db, path)
+getDocs(colRef)
+    .then((snapshot) => {
+        let characterData = []
+        snapshot.docs.forEach((doc) => {
+            characterData.push({...doc.data()})
+        })
+        console.log(characterData)
+        console.log(characterData[3])
+    })
+    .catch(err => {
+        console.log(err.message)
+    })
 
 function characterDisplayCardSeriesRow(list,type){
     return(
@@ -92,7 +110,8 @@ function characterDisplayCardSingle(item,type,as='input'){
 }
 
 function CharacterDisplay(){
-    
+    // getData();
+
     const characterName = {name:'Character Name',value:'...name'};
     const characterLevel = {name:'Level',value:'0'};
     const characterXP = {name:'Experience Points',value:'0'};
