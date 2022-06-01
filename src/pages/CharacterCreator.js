@@ -191,6 +191,7 @@ function CharacterCreator(){
     ]);
 
     const [skillChoiceNum, setSkillChoiceNum] = useState();
+    const [equipChouceNum, setEquipChoiceNum] = useState();
     const [classChoices, setClassChoices] = useState([]);
 
     const [knownLanguages, setKnownLanguages] = useState([]);
@@ -258,6 +259,30 @@ function CharacterCreator(){
             desc: []
         }
     ]);
+
+    const [backGroundEquipment, setBackGroundEquipment] = useState([
+		{
+			name: "Amulet",
+			desc: [
+                "A holy symbol is a representation of a god or pantheon. It might be an amulet depicting a symbol representing a deity, the same symbol carefully engraved or inlaid as an emblem on a shield, or a tiny box holding a fragment of a sacred relic.",
+                "Appendix B lists the symbols commonly associated with many gods in the multiverse. A cleric or paladin can use a holy symbol as a spellcasting focus. To use the symbol in this way, the caster must hold it in hand, wear it visibly, or bear it on a shield."
+            ]
+		},
+		{
+		    name: "Emblem",
+			desc: [
+                "A holy symbol is a representation of a god or pantheon. It might be an amulet depicting a symbol representing a deity, the same symbol carefully engraved or inlaid as an emblem on a shield, or a tiny box holding a fragment of a sacred relic.",
+                "Appendix B lists the symbols commonly associated with many gods in the multiverse. A cleric or paladin can use a holy symbol as a spellcasting focus. To use the symbol in this way, the caster must hold it in hand, wear it visibly, or bear it on a shield."
+            ]
+		},
+		{
+			"name": "Reliquary",
+			desc: [
+                "A holy symbol is a representation of a god or pantheon. It might be an amulet depicting a symbol representing a deity, the same symbol carefully engraved or inlaid as an emblem on a shield, or a tiny box holding a fragment of a sacred relic.",
+                "Appendix B lists the symbols commonly associated with many gods in the multiverse. A cleric or paladin can use a holy symbol as a spellcasting focus. To use the symbol in this way, the caster must hold it in hand, wear it visibly, or bear it on a shield."
+            ]
+		}
+	]);
 
     //push optRace, optClass, abilities
     const [optRace,setOptRace] = useState(characterRaces[0]);
@@ -667,18 +692,8 @@ function CharacterCreator(){
                     let temp = JSON.parse(JSON.stringify(r.data));
                     let choiceArray = temp.starting_equipment_options[arrayNum].from;
                     let tempArray = []  
-                    for( let q = 0; q < choiceArray.length; q++){
-                        var result = r.filter(skill => skill.name === choiceArray[q].index.substring(6))
-                        try{
-                            if(result[0].state === false){
-                                tempArray.push({name:choiceArray[q].index.substring(6), state: result[0].state})
-                            }
-                        }
-                        catch{}
-                    }
 
                     setSkillChoiceNum(temp.starting_equipment_options[arrayNum].choose)
-                    setClassChoices(tempArray)
                 }
             )
         }
@@ -686,12 +701,6 @@ function CharacterCreator(){
     }
 
     const updateEquipmentChoice = (choice) => {
-        setClassChoices(
-            classChoices.map( (prevChoice) =>
-                prevChoice.name === choice? {...prevChoice, state: !prevChoice.state} : {...prevChoice}
-            )
-        );
-
         setClassSkills(
             classSkills.map( (prevChoice) =>
                 prevChoice.name === choice? {...prevChoice, state: !prevChoice.state} : {...prevChoice}
@@ -1593,7 +1602,55 @@ function CharacterCreator(){
                 </Row>
 
                 {/* ----------------Equipment---------------- */}
-                {characterCreatorCardPlaceHolder("Equipment")}
+                <Row className='characterCardRow'>
+                    <Col xs={7} className='characterOptionsCol'>
+                        <Card className='characterOptionsCard characterCreatorCard' border='light'>
+                            <Card.Header>Equipment</Card.Header>
+                            <Card.Body>
+                                <div>
+                                Equipment recieved from {optRace.name}: {raceSkills.map((item, index)=>{
+                                        return(
+                                        item.state === true? 
+                                            <div key={index}> {item.name} </div>
+                                        :   
+                                            <div key={index}></div>
+                                        );
+                                    })}
+                                </div>
+                                <hr/>
+                                <div>
+                                    Equipment from {optClass.name} <br/>
+                                    Pick {equipChouceNum} : <br/>
+                                    {classChoices.map((item, idx) => (
+                                        <ToggleButton
+                                            key={idx}
+                                            id={item.name}
+                                            value={item.name}
+                                            type="checkbox"
+                                            variant="outline-primary"
+                                            checked={item.state}
+                                            className="charButton"
+                                            onChange={()=>{updateSkillChoice(item.name)}}
+                                        >
+                                            {item.name}
+                                        </ToggleButton>
+                                    ))}
+                                    
+                                </div>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+
+                    {verticalRule()}
+
+                    <Col className='characterInfoCol'>
+                        <Card className='characterInfoCard characterCreatorCard' border='light'>
+                            <Card.Body>
+                                <Card.Text>information</Card.Text>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                </Row>
             </Container>
 
             {/* ----------------Save Button---------------- */}
