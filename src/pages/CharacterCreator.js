@@ -508,7 +508,6 @@ function CharacterCreator(){
                 setCharacterBackgrounds(prevItems => [...prevItems, {
                     name: item.name,
                     starting_proficiencies: item.starting_proficiencies,
-                    tool_proficiencies: item.tool_proficiencies,
                     language_options: item.language_options,
                     starting_equipment: item.starting_equipment,
                     starting_equipment_options: item.starting_equipment_options,
@@ -781,7 +780,7 @@ function CharacterCreator(){
         const uid=user.uid;
 
         const path="User/"+uid+"/characters"
-        const fileName="tst3.json";
+        const fileName="characterSheet.json";
         console.log(optRace);
 
         console.log("");
@@ -824,6 +823,65 @@ function CharacterCreator(){
         myData.optRace=optRace;
         myData.abilityScores=charAbilities;
 
+       var jsonRaceskills=[];
+       var jsonClassSkills=[];
+       var jsonLang=[];
+       var jsonClassLang=[];
+
+        for (var i=0; i<raceSkills.length;i++)
+        {
+            if (raceSkills[i].state===true)
+            {
+                console.log("race ",raceSkills[i].name);
+                jsonRaceskills.push(raceSkills[i].name);
+            }
+        }
+
+
+        for (var j=0; j<classSkills.length;j++)
+        {
+            if (classSkills[j].state===true)
+            {
+                console.log("class ",classSkills[j].name);
+                jsonClassSkills.push(classSkills[j].name);
+            }
+        }
+
+        console.log("langs Race ",langRaceChoices);
+        console.log("langs Class ",langClassChoices);
+        console.log("langs Known ",knownLanguages);
+
+
+        for (var k=0; k<langRaceChoices.length;k++)
+        {
+            if(langRaceChoices[k].state===true)
+            {
+                console.log("langRace ", langRaceChoices[k].name)
+                jsonLang.push(langRaceChoices[k].name)
+            }
+        }
+
+        for (var a=0; a<langClassChoices.length;a++)
+        {
+            if(langClassChoices[a].state===true)
+            {
+                console.log("langClass ", langClassChoices[a].name)
+                jsonClassLang.push(langClassChoices[a].name)
+            }
+        }
+
+        console.log("back grounds ",optBackground);
+
+        myData.knownLanguages=knownLanguages;
+
+        myData.raceSkills=jsonRaceskills;
+        myData.classSkills=jsonClassSkills;
+
+        myData.langRace=jsonLang;
+        myData.langClass=jsonClassLang;
+
+        myData.health=hp;
+        myData.background=optBackground;
 
         setDoc(doc(db,path, fileName), myData);
 
