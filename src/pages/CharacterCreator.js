@@ -238,7 +238,9 @@ function CharacterCreator(){
             proficiencies: "",
             saving_throws: "",
             skills: "",
-            hp: ""
+            hp: "",
+            starting_equipment: "",
+            starting_equipment_options: ""
         }
     ]);
     const [characterBackgrounds, setCharacterBackgrounds] = useState([
@@ -330,11 +332,21 @@ function CharacterCreator(){
     }
     const handleSetAbilityScore = (event, index, isBuy) => {
         let newScore = Number(event.target.value);
-        if (newScore < 8){
-            newScore = 8;
+        if(isBuy){
+            if (newScore < 8){
+                newScore = 8;
+            }
+            else if (newScore > 15) {
+                newScore =15;
+            }
         }
-        else if (newScore > 15) {
-            newScore =15;
+        else{
+            if (newScore < 0){
+                newScore = 0;
+            }
+            else if (newScore > 20) {
+                newScore = 20;
+            }
         }
         let remainingAbilityPoints = abilityPoints + charAbilities[index] - newScore
         if(remainingAbilityPoints >= 0 || !isBuy) {
@@ -425,13 +437,33 @@ function CharacterCreator(){
                     }
                 }
                 skill = choiceNum + ": " + choices;
+
+                choiceNum = item.starting_equipment_options[arrayNum].choose;
+                let equipArray = item.starting_equipment_options[arrayNum].from;
+                choices = "";
+                let equipment = "";
+                for(var e = 0; e < equipArray.length; e++){
+                    let temp = equipArray[e].name;
+                    let newTemp = temp.replace('Skill: ', '');
+                    if(e === 0){
+                        choices = newTemp;
+                    }
+                    else
+                    {
+                        choices = choices + ", " + newTemp;
+                    }
+                }
+                equipment = choiceNum + ": " + choices;
+
                 setCharacterClasses(prevItems => [...prevItems, {
                     name: item.name,
                     hit_die: item.hit_die,
                     proficiencies: prof,
                     saving_throws: st,
                     skills: skill,
-                    hp: 0
+                    hp: 0,
+                    starting_equipment: item.starting_equipment,
+                    starting_equipment_options: equipment
                 }]);
             }
         )
@@ -626,6 +658,46 @@ function CharacterCreator(){
             setTabKey("wizard")
         }
     }   
+
+    /* ------------------------------------------------------------------------- Class Equipment -----------------------------------*/
+    const equipChoices = () => {
+        try{
+            Axios.get("https://www.dnd5eapi.co/api/classes/" + optClass.name.toLowerCase()).then(
+                (r) => {
+                    let temp = JSON.parse(JSON.stringify(r.data));
+                    let choiceArray = temp.starting_equipment_options[arrayNum].from;
+                    let tempArray = []  
+                    for( let q = 0; q < choiceArray.length; q++){
+                        var result = r.filter(skill => skill.name === choiceArray[q].index.substring(6))
+                        try{
+                            if(result[0].state === false){
+                                tempArray.push({name:choiceArray[q].index.substring(6), state: result[0].state})
+                            }
+                        }
+                        catch{}
+                    }
+
+                    setSkillChoiceNum(temp.starting_equipment_options[arrayNum].choose)
+                    setClassChoices(tempArray)
+                }
+            )
+        }
+        catch{}
+    }
+
+    const updateEquipmentChoice = (choice) => {
+        setClassChoices(
+            classChoices.map( (prevChoice) =>
+                prevChoice.name === choice? {...prevChoice, state: !prevChoice.state} : {...prevChoice}
+            )
+        );
+
+        setClassSkills(
+            classSkills.map( (prevChoice) =>
+                prevChoice.name === choice? {...prevChoice, state: !prevChoice.state} : {...prevChoice}
+            )
+        );
+    }
 
     /* ------------------------------------------------------------------------- Class Prof -----------------------------------*/
     const profChoices = () => {
@@ -884,7 +956,15 @@ function CharacterCreator(){
                     <Col xs={7} className='characterOptionsCol'>
                         <Card className='characterOptionsCard characterCreatorCard' border='light'>
                             <Card.Header>Ability Scores</Card.Header>
-                            <Tabs>
+                            <Tabs onSelect= {(activeKey)=> {
+                                if(activeKey === 'point-buy'){
+                                    setCharAbilities([8,8,8,8,8,8]);
+                                    setAbilityPoints(27);
+                                }
+                                else 
+                                    setCharAbilities([0,0,0,0,0,0]);
+                                }
+                            }>
                                 <Tab eventKey='point-buy' title='Point Buy'>
                                     <Card.Body>
                                         <CardGroup>
