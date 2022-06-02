@@ -86,6 +86,7 @@ function CharacterDisplay() {
     const [bigData, setBigData] = useState(0);
     const [charLevel, setCharLevel] = useState(1);
     const [charExp, setCharExp] = useState(0);
+    const [charName, setCharName] = useState("");
     const [abilityScore, setAbilityScore] = useState([0,0,0,0,0,0]);
     const [bigBackgroundText, setBigBackgroundText] = useState("");
     const [maxCharacterHealth, setMaxCharacterHealth] = useState(0);
@@ -133,6 +134,7 @@ function CharacterDisplay() {
         setBigBackgroundText(rawSnap['background']['feature_desc'][0] + '\n' + rawSnap['background']['feature_desc'][1])
         setMaxCharacterHealth(rawSnap['health'])
         setCharacterHealth(rawSnap['health'])
+        setCharName(rawSnap['name'])
 
         // taking all the languages that the character should know(string form) and putting each language into an array
         let a = rawSnap['knownLanguages']
@@ -177,7 +179,7 @@ function CharacterDisplay() {
     console.log(bigData);
 
     // metadata that the backend data will be equal to and eventually will be displayed onto the frontend
-    const characterName = {name:'Character Name',value:'...name'};
+    const characterName = {name:'Character Name',value: charName};
     const characterLevel = {name:'Level',value: charLevel};
     const characterXP = {name:'Experience Points',value: charExp};
     const characterRace = {name:'Race',value: charRace};
