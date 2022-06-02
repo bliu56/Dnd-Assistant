@@ -5,3 +5,14 @@
 #CDE4FF light white
 #729EBF light blue
 */
+img {
+    max-width:2500px;
+    max-height:600px;
+    width:auto;
+    height:auto;
+}
+
+.homePage{
+    height: calc( 100vh - 100px );
+    background-color: #CDE4FF;
+}

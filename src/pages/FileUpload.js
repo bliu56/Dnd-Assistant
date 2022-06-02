@@ -10,7 +10,7 @@ const db=getFirestore();
 
 function FileUpload(){
 
-    const [extratedData, setData] = useState();
+    const [extratedData, setData] = useState([]);
 
     const [file, fileToChange] = useState();
 
@@ -28,16 +28,22 @@ function FileUpload(){
                     reader.readAsText(file);
                     reader.onload = function() {
                         var data = JSON.parse(reader.result);
-                        //var user=auth.currentUser;
-                        //const uid=user.uid;
+                        var user=auth.currentUser;
+                        const uid=user.uid;
 
-                        const uid="BWLSuKe0yMw206XTBrxC";
+                       // const uid="BWLSuKe0yMw206XTBrxC";
                         const path="User/"+uid+"/characters"
                         const fileName=file.name;
                         //setDoc("User/BWLSuKe0yMw206XTBrxC/characters", "test");
                         //const colRef=collection()
                         setDoc(doc(db,path, fileName), data);
+
                         
+
+                        
+
+
+                       // setDoc(doc(db,path,"test2.json"),extratedData);
 
                         //SEPERATE folder should be named w/ uid
                         //ping/connect firebase w/ specific userID

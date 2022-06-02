@@ -6,13 +6,13 @@ import * as BsIcons from "react-icons/bs";
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { auth } from '../firebase-config';
+import { auth } from '../../firebase-config';
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 
-import DiceOffCanvas from './DiceOffCanvas.js';
+import DiceOffCanvas from '../DiceOffCanvas.js';
 import {SidebarData} from './SidebarData.js';
 import './NavigationBar.css';
-import '../App.js'
+import '../../App.js'
 
 
 function NavigationBar(){
