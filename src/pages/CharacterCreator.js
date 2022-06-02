@@ -1,42 +1,24 @@
 import './CharacterCreator.css';
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, CardGroup, Card, Form, Button, ToggleButton, ToggleButtonGroup, DropdownButton, Tabs, Tab, ButtonToolbar, ButtonGroup } from 'react-bootstrap';
+import { Container, Row, Col, CardGroup, Card, Form, Button, ToggleButton, DropdownButton, Tabs, Tab, ButtonToolbar } from 'react-bootstrap';
 import { dropMinRoll } from '../comp/dropMinRoll';
 import Select from 'react-select'
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Axios from 'axios';
 import { doc, getFirestore, setDoc } from "firebase/firestore"; 
 import { auth } from '../firebase-config';
 import { diceRoll } from '../comp/diceRoll';
 
-
+// grabs the ref to the class json in the json folder
 const file = require("../json/classes.json")
 
+// function to construct the vertical line seperating the left and right display boxes
 function verticalRule(){
     return(<div className='vr' style={{padding:'0px', margin:'10px 5px', color:'gray'}}/>)
 }
-function characterCreatorCardPlaceHolder(name){
-    return(
-        <Row className='characterCardRow'>
-            <Col xs={7} className='characterOptionsCol'>
-                <Card className='characterOptionsCard characterCreatorCard' border='light'>
-                    <Card.Header>{name}</Card.Header>
-                    <Card.Body>
-                    </Card.Body>
-                </Card>
-            </Col>
-            {verticalRule()}
-            <Col className='characterInfoCol'>
-                <Card className='characterInfoCard characterCreatorCard' border='light'>
-                    <Card.Body>
-                        <Card.Text>information</Card.Text>
-                    </Card.Body>
-                </Card>
-            </Col>
-        </Row>
-    );
-}
+
+// function that creates the buttons for the all the options for race and class
 function optionsToolBar(list, setItemFxn, size='md'){
     return(
         <ButtonToolbar>
@@ -50,6 +32,8 @@ function optionsToolBar(list, setItemFxn, size='md'){
         </ButtonToolbar>
     );
 }
+
+// function that creates a group of buttons for spells
 function optionsToggleButtonGroup(list, handleFxn, size='md'){
     return(
         <ButtonToolbar>
@@ -65,6 +49,8 @@ function optionsToggleButtonGroup(list, handleFxn, size='md'){
         </ButtonToolbar>
     );
 }
+
+// function that creates a dropdown for backgrounds
 function optionsDropdown(name, list, setItemFxn){
     return(
         <DropdownButton title={name}>
@@ -78,10 +64,14 @@ function optionsDropdown(name, list, setItemFxn){
 }
 
 function CharacterCreator(){  
-    const [classFile, setClassFile] = useState(file);
-
+    
+    // holds what class tab to show
     const [tabKey, setTabKey] = useState("barbarian")
 
+    // holds the file that points to a specific class in the classes.json
+    const [classFile, setClassFile] = useState(file);
+
+    // sets all the class tabs and will only allow one to be viewed later on depending on the selected class
     const [barbTab, setBarbTab] = useState(true);
     const [bardTab, setBardTab] = useState(true);
     const [clericTab, setClericTab] = useState(true);
@@ -96,7 +86,7 @@ function CharacterCreator(){
     const [warlockTab, setWarlockTab] = useState(true);
 
 
-    // push if optclass = cleric
+    // options for the cleric class
     const [selectedDomain, setSelectedDomain] = useState();
     const domains = [
         { value: 'knowledge', label: 'Knowledge'},
@@ -108,7 +98,7 @@ function CharacterCreator(){
         { value: 'war', label: 'War'},
     ]
 
-    // push if optclass = fighter
+    // options for the fighter class
     const [selectedStyle, setSelectedStyle] = useState();
     const styles = [
         { value: 'archery', label: 'Archery'},
@@ -119,14 +109,14 @@ function CharacterCreator(){
         { value: 'two-weapon-fighting', label: 'Two-Weapon Fighting'},
     ]
 
-    // push if optclass = sorcerer
+    // options for the sorcerer class
     const [selectedOrigin, setSelectedOrigin] = useState();
     const origin = [
         { value: 'wild-magic', label: 'Wild Magic'},
         { value: 'draconic-bloodline', label: 'Draconic Bloodline'},
     ]
 
-    // push if optclass = sorcerer and selecetedOrigin = dragonic-bloodline
+    // options for the dragonic-bloodline path for sorcerer
     const [ selectedDragonAncestor, setSelectedDragonAncestor] = useState();
     const dragonAncestor = [
         { value: 'black', label: 'Black - Acid'},
@@ -141,7 +131,7 @@ function CharacterCreator(){
         { value: 'white', label: 'White - Cold'},
     ]
 
-    //push if optclass = warlock
+    // options for the warlock class
     const [ selectedPatron, setSelectedPatron] = useState();
     const patron = [
         { value: 'archfey', label: 'Archfey'},
@@ -149,11 +139,15 @@ function CharacterCreator(){
         { value: 'great-old-one', label: 'Great Old One'},
     ]
 
+    // holds the index of the array that holds the prof for a given class in the classes json
     const [arrayNum, setArrayNum] = useState(0)
 
+    // holds the profs that are given from the class
     const [classProf, setClassProf] = useState([]);
+    //holds the profs that are given from the race
     const [raceProf, setRaceProf] = useState([]);
 
+    // Array of all the skills that will be true given a class
     const [classSkills, setClassSkills] = useState([
         { name: 'acrobatics', state: false},
         { name: 'animal-handling', state: false},
@@ -175,6 +169,7 @@ function CharacterCreator(){
         { name: 'survival', state: false}
     ]);
 
+    // Array of all the skills that will be true given a race
     const [raceSkills, setRaceSkills] = useState([
         { name: 'acrobatics', state: false},
         { name: 'animal-handling', state: false},
@@ -196,12 +191,16 @@ function CharacterCreator(){
         { name: 'survival', state: false}
     ]);
 
+    // holds the number of skills they can choose
     const [skillChoiceNum, setSkillChoiceNum] = useState();
+    // holds an array of choices they can make to pick skills based on the their class
     const [classChoices, setClassChoices] = useState([]);
 
+    // holds array of all languages that they inherently know
     const [knownLanguages, setKnownLanguages] = useState([]);
-
+    // sets the number of languages they choose
     const [langChoiceNum, setLangChoiceNum] = useState();
+    // holds all the languages that will be set true if they select it. These choices originate from their class
     const [langClassChoices, setLangClassChoices] = useState([
         {name: "common", state: false},
         {name: "dwarvish", state: false},
@@ -220,12 +219,16 @@ function CharacterCreator(){
         {name: "sylvan", state: false},
         {name: "undercommon", state: false}
     ]);
+    // holds all the languages they can pick because of their race
     const [langRaceChoices, setLangRaceChoices] = useState([]);
 
+    // holds all the loaded race, class, and abilities
     const [loadedRaces, setloadedRaces] = useState(false);
     const [loadedClasses, setloadedClasses] = useState(false);
     const [loadedAbilities, setloadedAbilities] = useState(false);
+    const [loadedBackgrounds, setloadedBackgrounds] = useState();
     
+    // template array for the race of a character
     const [characterRaces, setCharacterRaces] = useState([
         {
             name: '',
@@ -237,6 +240,7 @@ function CharacterCreator(){
         }
     ]);
     
+    // template array for the class of a character
     const [characterClasses, setCharacterClasses] = useState([
         {
             name: '',
@@ -249,6 +253,8 @@ function CharacterCreator(){
 	        starting_equipment_options: []
         }
     ]);
+    
+    // template array for the background of a character
     const [characterBackgrounds, setCharacterBackgrounds] = useState([
         {
             name: 'background',
@@ -256,6 +262,8 @@ function CharacterCreator(){
             img: ''
         }
     ]);
+    
+    // template array for the abilities of a character
     const [characterAbilities, setCharacterAbilities] = useState([
         {
             name: '',
@@ -264,12 +272,16 @@ function CharacterCreator(){
             desc: []
         }
     ]);
+
+    // template array for the spells of a character
     const [characterSpells, setCharacterSpells] = useState([
         {
             name:'',
             desc:''
         }
     ]);
+    
+    // template array for the cantrips of a character
     const [characterCantrips, setCharacterCantrips] = useState([
         {
             name:'',
@@ -277,6 +289,7 @@ function CharacterCreator(){
         }
     ]);
 
+    // template array for the backgrounds of a character
     const [backGroundEquipment, setBackGroundEquipment] = useState([
 		{
 			name: "Clothes, common",
@@ -289,6 +302,8 @@ function CharacterCreator(){
 			quantity: 1
 		}
 	]);
+    
+    // array for the equipment of a character for their background
     const [backGroundEquipmentOptions, setBackGroundEquipmentOptions] = useState([
 		{
 			name: "Amulet",
@@ -316,6 +331,7 @@ function CharacterCreator(){
 		}
 	]); 
 
+    // template array for the selected equipment of a character
     const [optEquipment, setOptEquipment] = useState([
         {
             name: "",
@@ -333,27 +349,36 @@ function CharacterCreator(){
             quantity: 1
         }]);
 
+    
+    // holds the amount of cantrips and spells they can pick
     const [characterSpellCount,setCharacterSpellCount] = useState({cantrips:0,spells:0});
 
-    //push optRace, optClass, abilities
+    // selected Name, Race, Class, Background, Ability
     const [optName,setOptName] = useState('');
     const [optRace,setOptRace] = useState(characterRaces[0]);
     const [optClass,setOptClass] = useState(characterClasses[0]);
     const [optBackground,setOptBackground] = useState(characterBackgrounds[0]);
     const [optAbilities,setOptAbilities] = useState(characterAbilities[0]);
+    
+    // holds the spell that they clicked and are viewing
     const [viewSpell,setViewSpell] = useState(characterSpells[0]);
-    // Holds the character abilite scores in order:
+
+    // Holds the starting character ability scores in order:
     // CON/CHA/DEX/STR/INT/WIS
     const [charAbilities,setCharAbilities] = useState([8,8,8,8,8,8]);
+    // Holds the amount of ability points they can use to increase their stats 
     const [abilityPoints,setAbilityPoints] = useState(27);
+    // Holds the result of dice rolled that will then be set to an Ability Score
     const [dieRollResult,setdieRollResult] = useState([0]);
+    // Holds the Ability score that will have values inputed
     const [curStat, setCurStat]            = useState({0 : 'CHA', 1 : 0});
 
-    const [loadedBackgrounds, setloadedBackgrounds] = useState()
-
+    // Holds the hitdie of a class
     const [hitdie, setHitDie] = useState()
+    // Holds the hp of a class
     const [hp, setHp] = useState(0);
 
+    //Functions that handle setting the useState to the value that was clicked on
     const handleDomain = (e) => {
         setSelectedDomain(e.value);
     }
@@ -399,7 +424,7 @@ function CharacterCreator(){
         }
     }, []) 
 
-    /*-----------------------------------------------------------------------load Race/Class/Abilities Buttons------------------ */
+    /*-----------------------------------------------------------------------load Race/Class/Abilities Buttons Once------------------ */
     useEffect(() => {
         loadRaces();
         loadClasses();
@@ -408,10 +433,12 @@ function CharacterCreator(){
         loadAbilities(); // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    // Change the name by the entered name
     const handleChangeName = (event) => {
         setOptName(event.target.value);
     }
 
+    // Change the Ability scores by the selected rolled amount
     const handleSetCharAbilities = (index) => {
         const newAbilities = []
         for (let i = 0; i < charAbilities.length; i++) {
@@ -423,6 +450,7 @@ function CharacterCreator(){
         setCharAbilities(newAbilities);
         setAbilityPoints(abilityPoints + charAbilities[index] - dieRollResult)
     }
+    // Change the Ability scires by the point buy method
     const handleSetAbilityScore = (event, index, isBuy) => {
         let newScore = Number(event.target.value);
         if(isBuy){
@@ -450,7 +478,8 @@ function CharacterCreator(){
     }
     
 
-    //Races
+    // Races
+    // Handles the information gathering for race
     const fetchRaceInfo = (index) => {
         Axios.get("https://www.dnd5eapi.co/api/races/" + index).then(
             (r) => {
@@ -482,7 +511,8 @@ function CharacterCreator(){
         }
     }
     
-    //Classes
+    // Classes
+    // Handles the information gathering for classes
     const fetchClassInfo = (index) => {
         Axios.get("https://www.dnd5eapi.co/api/classes/" + index).then(
             (r) => {
@@ -559,6 +589,7 @@ function CharacterCreator(){
     }
 
     // Abilities
+    // Handles the information gathering for abilties
     const fetchAbilitiesInfo = (index) => {
         Axios.get("https://www.dnd5eapi.co/api/ability-scores/" + index).then(
             (r) => {
@@ -589,6 +620,7 @@ function CharacterCreator(){
     }
 
     // Background
+    // Handles the information gathering for backgrounds
     const loadBackground = () => {
         if(!loadedBackgrounds) {
             setCharacterBackgrounds([]);
@@ -620,7 +652,9 @@ function CharacterCreator(){
             }
         )
     }
+
     // Spells
+    // Handles the information gathering for spells
     const fetchSpell = (index) => {
         Axios.get("https://www.dnd5eapi.co/api/spells/" + index).then(
             (r) => {
@@ -805,6 +839,8 @@ function CharacterCreator(){
     }   
 
     /* ------------------------------------------------------------------------- Class Prof -----------------------------------*/
+    // Loop through all the prof options and then adds it to an array for them to then pick
+    // Also adds the number of choices that they can make
     const profChoices = () => {
         try{
             Axios.get("https://www.dnd5eapi.co/api/classes/" + optClass.name.toLowerCase()).then(
@@ -830,6 +866,7 @@ function CharacterCreator(){
         catch{}
     }
 
+    // Updates whether the prof is true(meaning that the character has it) or false depending if the button is clicked
     const updateSkillChoice = (choice) => {
         setClassChoices(
             classChoices.map( (prevChoice) =>
@@ -845,6 +882,7 @@ function CharacterCreator(){
     }
 
     /* --------------------------------------------------------------------- Languages -------------------------------------*/
+    // Updates whether character has the languages. True = has it, False = doesn't
     const updateLangChoice = (choice) => {
         setLangRaceChoices(
             langRaceChoices.map( (prevChoice) =>
@@ -859,10 +897,13 @@ function CharacterCreator(){
         )
     }
 
+    // Function that adds draconic to the known languages
     const addDraconic = () => {
         setKnownLanguages((prev)=>[...prev, "draconic"])
     }
 
+    /* ------------------------------------------------------------------------- Lang -----------------------------------*/
+    // sets all the known languages and sets up the choices they have
     const langChoice = (e) => {
         try{
             let temp = e.languages;
@@ -894,6 +935,9 @@ function CharacterCreator(){
         catch{}
     }
 
+    /*---------------------------------------------------------------------------------- UseEffect -------------------------------------*/ 
+    // Class functions that need to be called again when they change classes
+    // Add the class features to an array and re-call the languages
     useEffect(() => {
         let tempArray = [];
         try{
@@ -916,7 +960,8 @@ function CharacterCreator(){
         setClassProf(tempArray); // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [classFile])
 
-    /* ------------------------------------------------------------------------ Race Prof ----------------------------------*/
+    
+    // Re-call the functions that handles race specfic settings
     useEffect(() => {
         try{
             Axios.get("https://www.dnd5eapi.co/api/races/" + (optRace.name.toLowerCase())).then(
@@ -966,10 +1011,12 @@ function CharacterCreator(){
         catch{}
     }
 
+    // Update the equipment picked
     const updateEquipmentChoice = (choice) => {
         setOptEquipment([choice, backGroundEquipment[0], backGroundEquipment[1]])
     }
 
+    // Pushs all the relevant useStates to the firebase database under the user's uid
     function pushTofirebae()
     {
 
@@ -986,7 +1033,7 @@ function CharacterCreator(){
 
         var myData={};
 
-        myData = {"characterName": optName};
+        myData.characterName = {"characterName": optName};
 
         if(optClass.name==="Cleric")
         {
@@ -1862,7 +1909,7 @@ function CharacterCreator(){
                             {/* <Card.Img src={optRace.img} height='150px'/> */}
                             <Card.Body>
                                     <h5><strong>Spell: </strong>{viewSpell.name}</h5><hr/>
-                                    <p><strong>Level: </strong>{viewSpell.level}</p><hr/>
+                                    <div><strong>Level: </strong>{viewSpell.level}</div><hr/>
                                     <div>{viewSpell.desc}</div>
                             </Card.Body>
                         </Card>
@@ -1923,7 +1970,7 @@ function CharacterCreator(){
                     <Col className='characterInfoCol'>
                         <Card className='characterInfoCard characterCreatorCard' border='light'>
                             <Card.Body>
-                                <h5><strong>Equipment: </strong></h5><hr/>
+                                <div><strong>Equipment: </strong></div><hr/>
                                 {/*<div>
                                      <strong>recieved from {optClass.name}: </strong>{backGroundEquipment.map((item, index)=>{
                                         return(
@@ -1940,7 +1987,7 @@ function CharacterCreator(){
                                 </div>
                                 <hr></hr>
                                 <div>
-                                     <strong>chosen equipment: </strong>{optEquipment[0].name}<p></p>
+                                     <strong>chosen equipment: </strong>{optEquipment[0].name}
                                         {optEquipment[0].desc}
                                 </div>
                             </Card.Body>
@@ -1950,7 +1997,7 @@ function CharacterCreator(){
             </Container>
 
             {/* ----------------Save Button---------------- */}
-            <p>      </p><div>                            <Button onClick={pushTofirebae}>Save</Button> </div><p>      </p>
+            <div onClick={()=>{navigate("/display")}} className="saveButton"><Button onClick={pushTofirebae}>Save</Button></div>
 
 
         </>

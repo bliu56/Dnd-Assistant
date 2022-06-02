@@ -26,3 +26,9 @@
     padding-top: 0.25rem;
     padding-bottom: 0.25rem;
 }
+
+.saveButton{
+    display: flex;
+    align-content: center;
+    padding: auto;
+}
