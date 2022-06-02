@@ -1,4 +1,8 @@
-# Getting Started with Create React App
+#DnD Assistant
+
+This project aims to help new player to create a new character from scratch and have it tied to registered account.
+
+## Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
