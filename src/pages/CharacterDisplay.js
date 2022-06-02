@@ -171,7 +171,7 @@ function CharacterDisplay() {
     }, []) 
 
     const getData = async () => {
-        const uid="PlfD8dnXj1UjlbaVPn4ndnSUQNP2";
+        const uid= user.uid;
         const path="User/"+uid+"/characters/";
         const db = getFirestore();
         // const colRef = collection(db, path).doc('characterSheet.json')
@@ -185,7 +185,7 @@ function CharacterDisplay() {
         // taking data from firebase and putting into useState
         setAbilityScore(rawSnap['abilityScores'])
 
-        setBigBackgroundText(rawSnap['background']['optBackground']['feature_desc'][0] + '\n' + rawSnap['background']['optBackground']['feature_desc'][1])
+        setBigBackgroundText(rawSnap['background']['feature_desc'][0] + '\n' + rawSnap['background']['feature_desc'][1])
 
         setMaxCharacterHealth(rawSnap['health'])
 
@@ -205,7 +205,7 @@ function CharacterDisplay() {
 
         setClassProficiencies(rawSnap['optClass']['proficiencies'])
 
-        setBackground(rawSnap['background']['optBackground']['name'])
+        setBackground(rawSnap['background']['name'])
         console.log(background)
 
         var stProof = rawSnap['optClass']['saving_throws']
