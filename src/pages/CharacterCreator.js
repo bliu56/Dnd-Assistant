@@ -986,7 +986,7 @@ function CharacterCreator(){
 
         var myData={};
 
-        myData = {"characterName": optName};
+        myData.characterName = {"characterName": optName};
 
         if(optClass.name==="Cleric")
         {
