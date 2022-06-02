@@ -5,47 +5,7 @@ import { doc, getFirestore, getDoc, collection, getDocs } from "firebase/firesto
 import { Link, useNavigate } from 'react-router-dom';
 import { auth } from '../firebase-config';
 
-// Code block that gets data from Firebase
-// function getData() {
-//     const uid="PlfD8dnXj1UjlbaVPn4ndnSUQNP2";
-//     const path="User/"+uid+"/characters/";
-//     const db = getFirestore()
-//     const colRef = collection(db, path)
-
-//     return getDocs(colRef)
-//         .then((snapshot) => {
-//             var characterData = []
-//             snapshot.docs.forEach((doc) => {
-//                 characterData.push({...doc.data()})
-//             })
-//             console.log(characterData[0]);
-//             return characterData[0];
-//         })
-//         .catch(err => {
-//             console.log(err.message)
-//         })
-// }
-
-// async function getData() {
-//     const uid="PlfD8dnXj1UjlbaVPn4ndnSUQNP2";
-//     const path="User/"+uid+"/characters/";
-//     const db = getFirestore();
-//     console.log('here')
-//     // const colRef = collection(db, path).doc('characterSheet.json')
-
-//     const docRef = doc(db, path, "characterSheet.json");
-//     const docSnap = await getDoc(docRef);
-//     console.log(docSnap.data())
-//     return await docSnap.data();
-//     // try {
-//     //     const docSnap = await docRef.get();
-//     //     console.log(docSnap);
-//     // }
-//     // catch (err) {
-//     //     console.log(err);
-//     // }
-// }
-
+// a card that has N number of headers and inputs but in a column format
 function characterDisplayCardSeriesRow(list,type){
     return(
         <CardGroup className='characterDisplayCard' border='light'>
@@ -63,24 +23,7 @@ function characterDisplayCardSeriesRow(list,type){
     );
 }
 
-function characterDisplayCardSeriesColumn(list,type,name){
-    return(
-        <Card className='characterDisplayCard' border='light'>
-            <Card.Header>{name}</Card.Header>
-            {list.map(
-                (item) => {return(
-                    <Card border='light'>
-                        <Card.Header>{item.name}</Card.Header>
-                        <Card.Body>
-                            <Form.Control readOnly={false} type={type} value={item.value}/>
-                        </Card.Body>
-                    </Card>
-                );}
-            )}
-        </Card>
-    );
-}
-
+// a card that has N number of headers and inputs but in a column format
 function characterDisplayCardMultipleSeriesColumn(list,itemList,name){
     return(
         <Card className='characterDisplayCard' border='light'>
@@ -103,6 +46,7 @@ function characterDisplayCardMultipleSeriesColumn(list,itemList,name){
     );
 }
 
+// a card that has N number of headers and inputs and a checkbox but in a row format
 function characterDisplayCardSeriesRowWithCheck(list,type,name){
     return(
         <Card className='characterDisplayCard' border='light'>
@@ -124,6 +68,7 @@ function characterDisplayCardSeriesRowWithCheck(list,type,name){
     );
 }
 
+// a card that has a single header and a single input
 function characterDisplayCardSingle(item,type,as='input'){
     return(
         <Card className='characterDisplayCard' border='light'>
@@ -136,7 +81,8 @@ function characterDisplayCardSingle(item,type,as='input'){
 }
 
 function CharacterDisplay() {
-    // bigData['abilityScores'][0]
+    // Code block that gets data from Firebase
+    // use states that will hold the data taken from Firebase
     const [bigData, setBigData] = useState(0);
     const [charLevel, setCharLevel] = useState(1);
     const [charExp, setCharExp] = useState(0);
@@ -170,11 +116,11 @@ function CharacterDisplay() {
         }
     }, []) 
 
+    // Function that gets the user's path in firebase and gets the charactersheet.json stored
     const getData = async () => {
         const uid= user.uid;
         const path="User/"+uid+"/characters/";
         const db = getFirestore();
-        // const colRef = collection(db, path).doc('characterSheet.json')
 
         const docRef = doc(db, path, "characterSheet.json");
         const docSnap = await getDoc(docRef);
@@ -184,13 +130,11 @@ function CharacterDisplay() {
 
         // taking data from firebase and putting into useState
         setAbilityScore(rawSnap['abilityScores'])
-
         setBigBackgroundText(rawSnap['background']['feature_desc'][0] + '\n' + rawSnap['background']['feature_desc'][1])
-
         setMaxCharacterHealth(rawSnap['health'])
-
         setCharacterHealth(rawSnap['health'])
 
+        // taking all the languages that the character should know(string form) and putting each language into an array
         let a = rawSnap['knownLanguages']
         let b = rawSnap['langClass']
         let c = rawSnap['langRace']
@@ -200,14 +144,11 @@ function CharacterDisplay() {
         setKnownLang(totalLang)
 
         setClassName(rawSnap['optClass']['name'])
-
         setHitDiceNumber(rawSnap['optClass']['hit_die'])
-
         setClassProficiencies(rawSnap['optClass']['proficiencies'])
-
         setBackground(rawSnap['background']['name'])
-        console.log(background)
 
+        // Go through saving throw array and find which ability scores should have plus 2 added
         var stProof = rawSnap['optClass']['saving_throws']
         stProof = stProof.replace(/\s/g, '');
         const stProofArray = stProof.split(",");
@@ -235,6 +176,7 @@ function CharacterDisplay() {
     
     console.log(bigData);
 
+    // metadata that the backend data will be equal to and eventually will be displayed onto the frontend
     const characterName = {name:'Character Name',value:'...name'};
     const characterLevel = {name:'Level',value: charLevel};
     const characterXP = {name:'Experience Points',value: charExp};
