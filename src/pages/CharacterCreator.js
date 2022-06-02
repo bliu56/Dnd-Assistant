@@ -244,7 +244,9 @@ function CharacterCreator(){
             proficiencies: "",
             saving_throws: "",
             skills: "",
-            hp: ""
+            hp: "",
+            starting_equipment: [],
+	        starting_equipment_options: []
         }
     ]);
     const [characterBackgrounds, setCharacterBackgrounds] = useState([
@@ -274,6 +276,63 @@ function CharacterCreator(){
             desc:''
         }
     ]);
+
+    const [backGroundEquipment, setBackGroundEquipment] = useState([
+		{
+			name: "Clothes, common",
+            desc: [],
+			quantity: 1
+		},
+        {
+		    name: "Pouch",
+            desc: [],
+			quantity: 1
+		}
+	]);
+    const [backGroundEquipmentOptions, setBackGroundEquipmentOptions] = useState([
+		{
+			name: "Amulet",
+			desc: [
+                "A holy symbol is a representation of a god or pantheon. It might be an amulet depicting a symbol representing a deity, the same symbol carefully engraved or inlaid as an emblem on a shield, or a tiny box holding a fragment of a sacred relic.",
+                " Appendix B lists the symbols commonly associated with many gods in the multiverse. A cleric or paladin can use a holy symbol as a spellcasting focus. To use the symbol in this way, the caster must hold it in hand, wear it visibly, or bear it on a shield."
+            ],
+            quantity: 1
+		},
+		{
+		    name: "Emblem",
+			desc: [
+                "A holy symbol is a representation of a god or pantheon. It might be an amulet depicting a symbol representing a deity, the same symbol carefully engraved or inlaid as an emblem on a shield, or a tiny box holding a fragment of a sacred relic.",
+                " Appendix B lists the symbols commonly associated with many gods in the multiverse. A cleric or paladin can use a holy symbol as a spellcasting focus. To use the symbol in this way, the caster must hold it in hand, wear it visibly, or bear it on a shield."
+            ],
+            quantity: 1
+		},
+		{
+			"name": "Reliquary",
+			desc: [
+                "A holy symbol is a representation of a god or pantheon. It might be an amulet depicting a symbol representing a deity, the same symbol carefully engraved or inlaid as an emblem on a shield, or a tiny box holding a fragment of a sacred relic.",
+                " Appendix B lists the symbols commonly associated with many gods in the multiverse. A cleric or paladin can use a holy symbol as a spellcasting focus. To use the symbol in this way, the caster must hold it in hand, wear it visibly, or bear it on a shield."
+            ],
+            quantity: 1
+		}
+	]); 
+
+    const [optEquipment, setOptEquipment] = useState([
+        {
+            name: "",
+            desc: [],
+            quantity: 0
+        }, 		
+        {
+            name: "Clothes, common",
+            desc: [],
+            quantity: 1
+        },
+        {
+            name: "Pouch",
+            desc: [],
+            quantity: 1
+        }]);
+
     const [characterSpellCount,setCharacterSpellCount] = useState({cantrips:0,spells:0});
 
     //push optRace, optClass, abilities
@@ -366,11 +425,21 @@ function CharacterCreator(){
     }
     const handleSetAbilityScore = (event, index, isBuy) => {
         let newScore = Number(event.target.value);
-        if (newScore < 8){
-            newScore = 8;
+        if(isBuy){
+            if (newScore < 8){
+                newScore = 8;
+            }
+            else if (newScore > 15) {
+                newScore =15;
+            }
         }
-        else if (newScore > 15) {
-            newScore =15;
+        else{
+            if (newScore < 0){
+                newScore = 0;
+            }
+            else if (newScore > 20) {
+                newScore = 20;
+            }
         }
         let remainingAbilityPoints = abilityPoints + charAbilities[index] - newScore
         if(remainingAbilityPoints >= 0 || !isBuy) {
@@ -619,6 +688,8 @@ function CharacterCreator(){
         }
     }
     
+
+
     /* -------------------------------------------------------------------------- CLASS --------------------------------------------*/
     // grab class file and manually direct the tab to the selected class
     useEffect(() => {
@@ -829,7 +900,8 @@ function CharacterCreator(){
             let profArray = classFile.Class_Features.Proficiencies;
             tempArray.push(profArray.content[0]);
             tempArray.push(profArray.content[1]);
-            profChoices(); 
+            profChoices();
+            equipChoices(); 
         }
         catch(err){
         }
@@ -875,6 +947,28 @@ function CharacterCreator(){
         catch{}
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [optRace]);
+
+/* ------------------------------------------------------------------------- background Equipment -----------------------------------*/
+    const [equipChoiceNum, setEquipChoiceNum] = useState();
+
+    const equipChoices = () => {
+        try{
+            Axios.get("https://www.dnd5eapi.co/api/classes/" + optClass.name.toLowerCase()).then(
+                (r) => {
+                    let temp = JSON.parse(JSON.stringify(r.data));
+                    let choiceArray = temp.starting_equipment_options[arrayNum].from;
+                    let tempArray = []  
+
+                    setEquipChoiceNum(temp.starting_equipment_options[arrayNum].choose)
+                }
+            )
+        }
+        catch{}
+    }
+
+    const updateEquipmentChoice = (choice) => {
+        setOptEquipment([choice, backGroundEquipment[0], backGroundEquipment[1]])
+    }
 
     function pushTofirebae()
     {
@@ -1130,7 +1224,15 @@ function CharacterCreator(){
                     <Col xs={7} className='characterOptionsCol'>
                         <Card className='characterOptionsCard characterCreatorCard' border='light'>
                             <Card.Header>Ability Scores</Card.Header>
-                            <Tabs>
+                            <Tabs onSelect= {(activeKey)=> {
+                                if(activeKey === 'point-buy'){
+                                    setCharAbilities([8,8,8,8,8,8]);
+                                    setAbilityPoints(27);
+                                }
+                                else 
+                                    setCharAbilities([0,0,0,0,0,0]);
+                                }
+                            }>
                                 <Tab eventKey='point-buy' title='Point Buy'>
                                     <Card.Body>
                                         <CardGroup>
@@ -1766,11 +1868,87 @@ function CharacterCreator(){
                 </Row>
 
                 {/* ----------------Equipment---------------- */}
-                {characterCreatorCardPlaceHolder("Equipment")}
+                <Row className='characterCardRow'>
+                    <Col xs={7} className='characterOptionsCol'>
+                        <Card className='characterOptionsCard characterCreatorCard' border='light'>
+                            <Card.Header>Equipment</Card.Header>
+                            <Card.Body>
+                                <div>
+                                    Equipment from {optClass.name} <br/>
+                                    Pick {equipChoiceNum} : <br/>
+                                    {/*{backGroundEquipmentOptions.map((item, idx) => (
+                                        <ToggleButton
+                                            key={idx}
+                                            id={item.name}
+                                            value={item.name}
+                                            type="checkbox"
+                                            variant="outline-primary"
+                                            checked={item.state}
+                                            className="charButton"
+                                            onChange={()=>{updateEquipmentChoice(item.name)}}
+                                        >
+                                            {item.name}
+                                        </ToggleButton>
+                                    ))*/}
+                                    
+                                </div>
+                                <hr/>
+                                <div>
+                                    Equipment from {optBackground.name} <br/>
+                                    Pick 1 : <br/>
+                                    {backGroundEquipmentOptions.map((item, idx) => (
+                                        <ToggleButton
+                                            key={idx}
+                                            id={item.name}
+                                            value={item.name}
+                                            type="checkbox"
+                                            variant="outline-primary"
+                                            checked={item.state}
+                                            className="charButton"
+                                            onChange={()=>{updateEquipmentChoice(item)}}
+                                        >
+                                            {item.name}
+                                        </ToggleButton>
+                                    ))}
+                                    
+                                </div>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+
+                    {verticalRule()}
+
+                    <Col className='characterInfoCol'>
+                        <Card className='characterInfoCard characterCreatorCard' border='light'>
+                            <Card.Body>
+                                <h5><strong>Equipment: </strong></h5><hr/>
+                                {/*<div>
+                                     <strong>recieved from {optClass.name}: </strong>{backGroundEquipment.map((item, index)=>{
+                                        return(
+                                            <div key={index}> {item.name}      quantity: {item.quantity} </div>
+                                        );
+                                    })}
+                                </div>*/}
+                                <div>
+                                     <strong>recieved from {optBackground.name}: </strong>{backGroundEquipment.map((item, index)=>{
+                                        return(
+                                            <div key={index}> {item.name}      quantity: {item.quantity} </div>
+                                        );
+                                    })}
+                                </div>
+                                <hr></hr>
+                                <div>
+                                     <strong>chosen equipment: </strong>{optEquipment[0].name}<p></p>
+                                        {optEquipment[0].desc}
+                                </div>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                </Row>
             </Container>
 
             {/* ----------------Save Button---------------- */}
-            <button onClick={pushTofirebae}>Save</button>
+            <p>      </p><div>                            <Button onClick={pushTofirebae}>Save</Button> </div><p>      </p>
 
 
         </>
