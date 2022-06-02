@@ -921,6 +921,9 @@ function CharacterCreator(){
        var jsonLang=[];
        var jsonClassLang=[];
 
+       var charSpells=[];
+       var charCantrips=[]
+
         for (var i=0; i<raceSkills.length;i++)
         {
             if (raceSkills[i].state===true)
@@ -963,6 +966,24 @@ function CharacterCreator(){
             }
         }
 
+        for (var h=0; h<characterSpells.length;h++)
+        {
+            if(characterSpells[h].state===true)
+            {
+                charSpells.push(characterSpells[h])
+            }
+        }
+
+        for (var c=0; c<characterCantrips.length;c++)
+        {
+            if(characterCantrips[c].state===true)
+            {
+                charCantrips.push(characterCantrips[c])
+            }
+        }
+
+
+
         console.log("back grounds ",optBackground);
 
         myData.knownLanguages=knownLanguages;
@@ -975,6 +996,14 @@ function CharacterCreator(){
 
         myData.health=hp;
         myData.background=optBackground;
+        myData.name=optName;
+
+        myData.spells=charSpells;
+        myData.cantrips=charCantrips;
+
+        console.log(characterCantrips);
+        console.log(characterSpells);
+
 
         setDoc(doc(db,path, fileName), myData);
 
