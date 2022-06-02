@@ -986,6 +986,8 @@ function CharacterCreator(){
 
         var myData={};
 
+        myData = {"characterName": optName};
+
         if(optClass.name==="Cleric")
         {
             myData={"optClass":optClass,"domains":selectedDomain};
@@ -1102,17 +1104,17 @@ function CharacterCreator(){
                         </Card>
                     </Col>
 
-{verticalRule()}
+                    {verticalRule()}
 
-<Col className='characterInfoCol'>
-    <Card className='characterInfoCard characterCreatorCard' border='light'>
-        {/* <Card.Img src={optRace.img} height='150px'/> */}
-        <Card.Body>
-                <h5><strong>Character Name: </strong></h5>
-                <p>{optName}</p>
-        </Card.Body>
-    </Card>
-</Col>
+                    <Col className='characterInfoCol'>
+                        <Card className='characterInfoCard characterCreatorCard' border='light'>
+                            {/* <Card.Img src={optRace.img} height='150px'/> */}
+                            <Card.Body>
+                                    <h5><strong>Character Name: </strong></h5>
+                                    <p>{optName}</p>
+                            </Card.Body>
+                        </Card>
+                    </Col>
                 </Row>
 
 
