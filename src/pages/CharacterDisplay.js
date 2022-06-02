@@ -3,24 +3,46 @@ import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, CardGroup, Card, Form, Button, ToggleButton, ToggleButtonGroup, DropdownButton, Tabs, Tab, ButtonToolbar, InputGroup } from 'react-bootstrap';
 import { doc, getFirestore, getDoc, collection, getDocs } from "firebase/firestore"; 
 
-function getData() {
-    const uid="PlfD8dnXj1UjlbaVPn4ndnSUQNP2";
-    const path="User/"+uid+"/characters/";
-    const db = getFirestore()
-    const colRef = collection(db, path)
-    getDocs(colRef)
-        .then((snapshot) => {
-            let characterData = []
-            snapshot.docs.forEach((doc) => {
-                characterData.push({...doc.data()})
-            })
-            console.log(characterData[0])
-            return characterData[0]
-        })
-        .catch(err => {
-            console.log(err.message)
-        })
-}
+// Code block that gets data from Firebase
+// function getData() {
+//     const uid="PlfD8dnXj1UjlbaVPn4ndnSUQNP2";
+//     const path="User/"+uid+"/characters/";
+//     const db = getFirestore()
+//     const colRef = collection(db, path)
+
+//     return getDocs(colRef)
+//         .then((snapshot) => {
+//             var characterData = []
+//             snapshot.docs.forEach((doc) => {
+//                 characterData.push({...doc.data()})
+//             })
+//             console.log(characterData[0]);
+//             return characterData[0];
+//         })
+//         .catch(err => {
+//             console.log(err.message)
+//         })
+// }
+
+// async function getData() {
+//     const uid="PlfD8dnXj1UjlbaVPn4ndnSUQNP2";
+//     const path="User/"+uid+"/characters/";
+//     const db = getFirestore();
+//     console.log('here')
+//     // const colRef = collection(db, path).doc('characterSheet.json')
+
+//     const docRef = doc(db, path, "characterSheet.json");
+//     const docSnap = await getDoc(docRef);
+//     console.log(docSnap.data())
+//     return await docSnap.data();
+//     // try {
+//     //     const docSnap = await docRef.get();
+//     //     console.log(docSnap);
+//     // }
+//     // catch (err) {
+//     //     console.log(err);
+//     // }
+// }
 
 function characterDisplayCardSeriesRow(list,type){
     return(
@@ -89,7 +111,7 @@ function characterDisplayCardSeriesRowWithCheck(list,type,name){
                         <Card border='light'>
                             <Card.Header>{item.name}</Card.Header>
                             <Card.Body>
-                                <Form.Check className='characterDisplayCheckbox' defaultChecked={item.check}/>
+                                <Form.Check className='characterDisplayCheckbox' defaultChecked={item.checked}/>
                                 <Form.Control className='d-inline' style={{width:'80%', float:'right'}} readOnly={false} type={type} value={item.value}/>
                             </Card.Body>
                         </Card>
@@ -111,49 +133,133 @@ function characterDisplayCardSingle(item,type,as='input'){
     );
 }
 
-function CharacterDisplay(){
-    let charData = getData();
-    console.log(charData);
+function CharacterDisplay() {
+    // bigData['abilityScores'][0]
+    const [bigData, setBigData] = useState(0);
+    const [charLevel, setCharLevel] = useState(1);
+    const [charExp, setCharExp] = useState(0);
+    const [abilityScore, setAbilityScore] = useState([0,0,0,0,0,0]);
+    const [bigBackgroundText, setBigBackgroundText] = useState("");
+    const [maxCharacterHealth, setMaxCharacterHealth] = useState(0);
+    const [characterHealth, setCharacterHealth] = useState(0);
+    const [proficiencyBonus, setPorficiencyBonus] = useState(2);
+    const [background, setBackground] = useState("");
+    const [knownLang, setKnownLang] = useState("");
+    const [className, setClassName] = useState("");
+    const [charRace, setCharRace] = useState("");
+    const [charSpeed, setCharSpeed] = useState("");
+    const [hitDiceNumber, setHitDiceNumber] = useState(0);
+    const [classProficiencies, setClassProficiencies] = useState("");
+    // CON: 0, CHA: 1, DEX: 2, STR: 3, INT: 4, WIS: 5  NOT WORKING RN
+    const [savingThrows, setSavingThrows] = useState([{name: "CON", value: 0, checked: false},
+                                                        {name: "CHA", value: 0, checked: false}, 
+                                                        {name: "DEX", value: 0, checked: false},
+                                                        {name: "STR", value: 0, checked: false},
+                                                        {name: "INT", value: 0, checked: false},
+                                                        {name: "WIS", value: 0, checked: false}]);
+
+    const getData = async () => {
+        const uid="PlfD8dnXj1UjlbaVPn4ndnSUQNP2";
+        const path="User/"+uid+"/characters/";
+        const db = getFirestore();
+        // const colRef = collection(db, path).doc('characterSheet.json')
+
+        const docRef = doc(db, path, "characterSheet.json");
+        const docSnap = await getDoc(docRef);
+        const rawSnap = await docSnap.data();
+        console.log(rawSnap)
+        setBigData(rawSnap)
+
+        // taking data from firebase and putting into useState
+        setAbilityScore(rawSnap['abilityScores'])
+
+        setBigBackgroundText(rawSnap['background']['optBackground']['feature_desc'][0] + '\n' + rawSnap['background']['optBackground']['feature_desc'][1])
+
+        setMaxCharacterHealth(rawSnap['health'])
+
+        setCharacterHealth(rawSnap['health'])
+
+        let a = rawSnap['knownLanguages']
+        let b = rawSnap['langClass']
+        let c = rawSnap['langRace']
+        var totalLang = a.concat(b).concat(c)
+        var set = new Set(totalLang)
+        totalLang = Array.from(set)
+        setKnownLang(totalLang)
+
+        setClassName(rawSnap['optClass']['name'])
+
+        setHitDiceNumber(rawSnap['optClass']['hit_die'])
+
+        setClassProficiencies(rawSnap['optClass']['proficiencies'])
+
+        setBackground(rawSnap['background']['optBackground']['name'])
+        console.log(background)
+
+        var stProof = rawSnap['optClass']['saving_throws']
+        stProof = stProof.replace(/\s/g, '');
+        const stProofArray = stProof.split(",");
+        
+        for (let j = 0; j < stProofArray.length; j++) {
+            for (let i = 0; i < rawSnap['abilityScores'].length; i++) {
+                if (stProofArray[j] === savingThrows[i].name || savingThrows[i]['checked'] === true) {
+                    setSavingThrows(savingThrows[i]['value'] = Math.floor((rawSnap['abilityScores'][i] - 10) / 2) + 2)
+                    setSavingThrows(savingThrows[i]['checked'] = true)
+                } else {
+                    setSavingThrows(savingThrows[i]['value'] = Math.floor((rawSnap['abilityScores'][i] - 10) / 2))
+                }
+            }
+        }
+        
+        console.log(savingThrows)
+
+        setCharRace(rawSnap['optRace']['name'])
+        setCharSpeed(rawSnap['optRace']['speed'])
+    }
+
+    useEffect(() => {
+        getData();
+    }, []);
+    
+    console.log(bigData);
 
     const characterName = {name:'Character Name',value:'...name'};
-    const characterLevel = {name:'Level',value:'0'};
-    const characterXP = {name:'Experience Points',value:'0'};
-    const characterRace = {name:'Race',value:'...'};
-    const characterClass = {name:'Class',value:'...'};
-    const characterBackground = {name:'Background',value:'...'};
+    const characterLevel = {name:'Level',value: charLevel};
+    const characterXP = {name:'Experience Points',value: charExp};
+    const characterRace = {name:'Race',value: charRace};
+    const characterClass = {name:'Class',value: className};
+    const characterBackground = {name:'Background',value: background};
     const characterAlignment = {name:'Alignment',value:'...'};
     const playerName = {name:'Player Name',value:'...'};
     const playerGroup = {name:'Adventuring Group',value:'...'};
 
-    const abilityScores = [{name:'CHA',value:0},
-                            {name:'CON',value:0},
-                            {name:'STR',value:0},
-                            {name:'DEX',value:0},
-                            {name:'WIS',value:0},
-                            {name:'INT',value:0}];
+    const abilityScores = [{name:'CON',value: abilityScore[0]},
+                            {name:'CHA',value: abilityScore[1]},
+                            {name:'DEX',value: abilityScore[2]},
+                            {name:'STR',value: abilityScore[3]},
+                            {name:'INT',value: abilityScore[4]},
+                            {name:'WIS',value: abilityScore[5]}];
+
     const characterInspiration = {name:'Inspiration',value:'...'};
-    const characterProficiencyBonus = {name:'Proficiency Bonus',value:''};
+    const characterProficiencyBonus = {name:'Proficiency Bonus',value: proficiencyBonus};
     const characterPassivePerception = {name:'Passive Perception',value:'...'};
-    const characterSavingThrows = [{name:'CHA',value:0,checked:true},
-                            {name:'CON',value:0,checked:false},
-                            {name:'DEX',value:0,checked:false},
-                            {name:'INT',value:0,checked:false},
-                            {name:'STR',value:0,checked:false},
-                            {name:'WIS',value:0,checked:false}];
+
+    const characterSavingThrows = [{name:'CON',value: 0,checked: false},
+                            {name:'CHA',value: 0,checked: false},
+                            {name:'DEX',value: 0,checked: false},
+                            {name:'STR',value: 0,checked: false},
+                            {name:'INT',value: 0,checked: false},
+                            {name:'WIS',value: 0,checked: false}];
     const characterSkills = [{}];
 
     const characterArmorClass = {name:'Armor Class',value:'...'};
-    const characterMaxHP = {name:'Max HP',value:'...'};
-    const characterTempHP = {name:'Temp HP',value:'...'};
-    const characterCurrentHP = {name:'Current Hit Points',value:'...'};
+    const characterMaxHP = {name:'Max HP',value: maxCharacterHealth};
+    const characterTempHP = {name:'Temp HP',value:'...'};                   // empty
+    const characterCurrentHP = {name:'Current Hit Points',value: characterHealth};
 
-    const characterDice = [{name:'d6',value:0},
-                {name:'d8',value:0},
-                {name:'d10',value:0},
-                {name:'d12',value:0}];
     const characterDeathSaves = {name:'Death Saves',value:'...'};
     const characterInitiative = {name:'Initiative',value:'...'};
-    const characterSpeed = {name:'Speed',value:'...'};
+    const characterSpeed = {name:'Speed',value: charSpeed};
     const characterVision = {name:'Vision',value:'...'};
 
     const characterAttacksSpells = [{name:'',attack:'',damage:'',range:'',ammo:'',used:''}];
@@ -214,7 +320,7 @@ function CharacterDisplay(){
                 {/* ----------------Dice Info---------------- */}
                 <Container fluid className='DiceInformation characterDisplayContainer'>
                     <Row>
-                        <Col>{characterDisplayCardSeriesColumn(characterDice,'number','Hit Dice')}</Col>
+                        <Col>{characterDisplayCardSingle({name: 'Hit Dice', value: hitDiceNumber},'number')}</Col>
                         <Col>{characterDisplayCardSingle(characterDeathSaves,'number')}</Col>
                         <Col>{characterDisplayCardSingle(characterInitiative,'number')}</Col>
                         <Col>{characterDisplayCardSingle(characterSpeed,'number')}</Col>
@@ -234,7 +340,7 @@ function CharacterDisplay(){
                 {/* ----------------Features and Traits---------------- */}
                 <Container fluid className='FeaturesTraitsInformation characterDisplayContainer'>
                     <Row>
-                        <Col>{characterDisplayCardSingle({name:'Features and Traits',value:'...'},'number','textarea')}</Col>
+                        <Col>{characterDisplayCardSingle({name:'Features and Traits',value: bigBackgroundText},'number','textarea')}</Col>
                     </Row>
                     <hr style={{color:'gray'}}></hr>
                 </Container>
@@ -242,7 +348,7 @@ function CharacterDisplay(){
                 {/* ----------------Other Proficiencies and Languages---------------- */}
                 <Container fluid className='Other characterDisplayContainer'>
                     <Row>
-                        <Col>{characterDisplayCardSingle({name:'Other Proficiences and Languages',value:'...'},'number','textarea')}</Col>
+                        <Col>{characterDisplayCardSingle({name:'Other Proficiences and Languages',value: knownLang + '\n' + classProficiencies},'number','textarea')}</Col>
                     </Row>
                  <hr style={{color:'gray'}}></hr>
                 </Container>
