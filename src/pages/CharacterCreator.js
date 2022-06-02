@@ -279,10 +279,12 @@ function CharacterCreator(){
     const [backGroundEquipment, setBackGroundEquipment] = useState([
 		{
 			name: "Clothes, common",
+            desc: [],
 			quantity: 1
 		},
         {
 		    name: "Pouch",
+            desc: [],
 			quantity: 1
 		}
 	]);
@@ -291,24 +293,44 @@ function CharacterCreator(){
 			name: "Amulet",
 			desc: [
                 "A holy symbol is a representation of a god or pantheon. It might be an amulet depicting a symbol representing a deity, the same symbol carefully engraved or inlaid as an emblem on a shield, or a tiny box holding a fragment of a sacred relic.",
-                "Appendix B lists the symbols commonly associated with many gods in the multiverse. A cleric or paladin can use a holy symbol as a spellcasting focus. To use the symbol in this way, the caster must hold it in hand, wear it visibly, or bear it on a shield."
-            ]
+                " Appendix B lists the symbols commonly associated with many gods in the multiverse. A cleric or paladin can use a holy symbol as a spellcasting focus. To use the symbol in this way, the caster must hold it in hand, wear it visibly, or bear it on a shield."
+            ],
+            quantity: 1
 		},
 		{
 		    name: "Emblem",
 			desc: [
                 "A holy symbol is a representation of a god or pantheon. It might be an amulet depicting a symbol representing a deity, the same symbol carefully engraved or inlaid as an emblem on a shield, or a tiny box holding a fragment of a sacred relic.",
-                "Appendix B lists the symbols commonly associated with many gods in the multiverse. A cleric or paladin can use a holy symbol as a spellcasting focus. To use the symbol in this way, the caster must hold it in hand, wear it visibly, or bear it on a shield."
-            ]
+                " Appendix B lists the symbols commonly associated with many gods in the multiverse. A cleric or paladin can use a holy symbol as a spellcasting focus. To use the symbol in this way, the caster must hold it in hand, wear it visibly, or bear it on a shield."
+            ],
+            quantity: 1
 		},
 		{
 			"name": "Reliquary",
 			desc: [
                 "A holy symbol is a representation of a god or pantheon. It might be an amulet depicting a symbol representing a deity, the same symbol carefully engraved or inlaid as an emblem on a shield, or a tiny box holding a fragment of a sacred relic.",
-                "Appendix B lists the symbols commonly associated with many gods in the multiverse. A cleric or paladin can use a holy symbol as a spellcasting focus. To use the symbol in this way, the caster must hold it in hand, wear it visibly, or bear it on a shield."
-            ]
+                " Appendix B lists the symbols commonly associated with many gods in the multiverse. A cleric or paladin can use a holy symbol as a spellcasting focus. To use the symbol in this way, the caster must hold it in hand, wear it visibly, or bear it on a shield."
+            ],
+            quantity: 1
 		}
 	]); 
+
+    const [optEquipment, setOptEquipment] = useState([
+        {
+            name: "",
+            desc: [],
+            quantity: 0
+        }, 		
+        {
+            name: "Clothes, common",
+            desc: [],
+            quantity: 1
+        },
+        {
+            name: "Pouch",
+            desc: [],
+            quantity: 1
+        }]);
 
     const [characterSpellCount,setCharacterSpellCount] = useState({cantrips:0,spells:0});
 
@@ -917,7 +939,6 @@ function CharacterCreator(){
 
 /* ------------------------------------------------------------------------- background Equipment -----------------------------------*/
     const [equipChoiceNum, setEquipChoiceNum] = useState();
-    const [equipChoice, setEquipChoice] = useState();
 
     const equipChoices = () => {
         try{
@@ -935,11 +956,7 @@ function CharacterCreator(){
     }
 
     const updateEquipmentChoice = (choice) => {
-        setEquipChoice(
-            classSkills.map( (prevChoice) =>
-                prevChoice.name === choice? {...prevChoice, state: !prevChoice.state} : {...prevChoice}
-            )
-        );
+        setOptEquipment([choice, backGroundEquipment[0], backGroundEquipment[1]])
     }
 
     function pushTofirebae()
@@ -1877,7 +1894,7 @@ function CharacterCreator(){
                                             variant="outline-primary"
                                             checked={item.state}
                                             className="charButton"
-                                            onChange={()=>{updateEquipmentChoice(item.name)}}
+                                            onChange={()=>{updateEquipmentChoice(item)}}
                                         >
                                             {item.name}
                                         </ToggleButton>
@@ -1907,6 +1924,11 @@ function CharacterCreator(){
                                             <div key={index}> {item.name}      quantity: {item.quantity} </div>
                                         );
                                     })}
+                                </div>
+                                <hr></hr>
+                                <div>
+                                     <strong>chosen equipment: </strong>{optEquipment[0].name}<p></p>
+                                        {optEquipment[0].desc}
                                 </div>
                             </Card.Body>
                         </Card>
