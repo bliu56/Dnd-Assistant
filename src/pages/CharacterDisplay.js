@@ -2,6 +2,8 @@ import './CharacterDisplay.css';
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, CardGroup, Card, Form, Button, ToggleButton, ToggleButtonGroup, DropdownButton, Tabs, Tab, ButtonToolbar, InputGroup } from 'react-bootstrap';
 import { doc, getFirestore, getDoc, collection, getDocs } from "firebase/firestore"; 
+import { Link, useNavigate } from 'react-router-dom';
+import { auth } from '../firebase-config';
 
 // Code block that gets data from Firebase
 // function getData() {
@@ -157,6 +159,16 @@ function CharacterDisplay() {
                                                         {name: "STR", value: 0, checked: false},
                                                         {name: "INT", value: 0, checked: false},
                                                         {name: "WIS", value: 0, checked: false}]);
+
+    // Force Log in
+    const navigate = useNavigate();
+    const user = auth.currentUser;
+
+    useEffect(()=>{
+        if(!user){
+            navigate("/login");
+        }
+    }, []) 
 
     const getData = async () => {
         const uid="PlfD8dnXj1UjlbaVPn4ndnSUQNP2";

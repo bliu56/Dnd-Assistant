@@ -4,6 +4,7 @@ import { Container, Row, Col, CardGroup, Card, Form, Button, ToggleButton, Toggl
 import { dropMinRoll } from '../comp/dropMinRoll';
 import Select from 'react-select'
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';
+import { Link, useNavigate } from 'react-router-dom';
 import Axios from 'axios';
 import { doc, getFirestore, setDoc } from "firebase/firestore"; 
 import { auth } from '../firebase-config';
@@ -328,6 +329,16 @@ function CharacterCreator(){
             setHp(diceRoll(1, optClass.hit_die, Math.floor((charAbilities[1]-10)/2)))
         }
     }
+
+    // Force Log in
+    const navigate = useNavigate();
+    const user = auth.currentUser;
+
+    useEffect(()=>{
+        if(!user){
+            navigate("/login")
+        }
+    }, []) 
 
     /*-----------------------------------------------------------------------load Race/Class/Abilities Buttons------------------ */
     useEffect(() => {

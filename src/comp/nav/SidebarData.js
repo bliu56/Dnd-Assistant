@@ -1,4 +1,5 @@
 import React from 'react';
+import { useState } from "react"
 import * as GiIcons from 'react-icons/gi';
 import * as AiIcons from 'react-icons/ai';
 
@@ -9,22 +10,22 @@ export const SidebarData = [
     icon: <AiIcons.AiFillHome />,
     cName: 'nav-text'
   },
-  {
-    title: 'FileUpload',
-    path: 'FileUpload',
-    icon: <AiIcons.AiFillHome />,
-    cName: 'nav-text'
-  },
+  // {
+  //   title: 'FileUpload',
+  //   path: 'FileUpload',
+  //   icon: <AiIcons.AiFillHome />,
+  //   cName: 'nav-text'
+  // },
   {
     title: 'Character Creation',
     path: 'character',
-    icon: <AiIcons.AiFillHome />,
+    icon: <GiIcons.GiCharacter />,
     cName: 'nav-text'
   },
   {
     title: 'Display Character',
     path: 'display',
-    icon: <AiIcons.AiFillHome />,
+    icon: <GiIcons.GiAbstract042 />,
     cName: 'nav-text'
   },
   {
@@ -33,10 +34,10 @@ export const SidebarData = [
     icon: <GiIcons.GiCrystalWand />,
     cName: 'nav-text'
   },
-  {
-    title: 'Test',
-    path: '/test',
-    icon: <GiIcons.GiCrystalWand />,
-    cName: 'nav-text'
-  }
+  // {
+  //   title: 'Test',
+  //   path: '/test',
+  //   icon: <GiIcons.GiCrystalWand />,
+  //   cName: 'nav-text'
+  // }
 ];

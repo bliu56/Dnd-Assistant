@@ -13,6 +13,6 @@ img {
 }
 
 .homePage{
-    height: calc( 100vh - 100px );
+    height: calc( 100vh - 70px );
     background-color: #CDE4FF;
 }

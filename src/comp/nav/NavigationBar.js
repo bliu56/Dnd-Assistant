@@ -80,7 +80,7 @@ function NavigationBar(){
                 {/* ---------------Ride side of Nav------------------ */}
                 <Nav className="right-nav">
                         {/* ---------------Settings------------------ */}
-                        <div onClick={showSettings}>
+                        <div onClick={()=>showSettings()}>
                             <BsIcons.BsFillGearFill/>
                         </div>
 
