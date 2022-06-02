@@ -22,6 +22,12 @@ export const SidebarData = [
     cName: 'nav-text'
   },
   {
+    title: 'Display Character',
+    path: 'display',
+    icon: <AiIcons.AiFillHome />,
+    cName: 'nav-text'
+  },
+  {
     title: 'Spell',
     path: '/spells',
     icon: <GiIcons.GiCrystalWand />,
