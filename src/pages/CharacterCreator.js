@@ -1608,12 +1608,9 @@ function CharacterCreator(){
                             <Card.Header>Equipment</Card.Header>
                             <Card.Body>
                                 <div>
-                                Equipment recieved from {optRace.name}: {raceSkills.map((item, index)=>{
+                                Equipment recieved from {optBackground.name}: {backGroundEquipment.map((item, index)=>{
                                         return(
-                                        item.state === true? 
                                             <div key={index}> {item.name} </div>
-                                        :   
-                                            <div key={index}></div>
                                         );
                                     })}
                                 </div>
@@ -1621,7 +1618,7 @@ function CharacterCreator(){
                                 <div>
                                     Equipment from {optClass.name} <br/>
                                     Pick {equipChouceNum} : <br/>
-                                    {classChoices.map((item, idx) => (
+                                    {backGroundEquipment.map((item, idx) => (
                                         <ToggleButton
                                             key={idx}
                                             id={item.name}
